@@ -69,9 +69,12 @@ ficha indica preventa exclusiva online, así que todos `dateType:"release"`.
 | MINIPLA KAKUSEIHUNTER OMEGAHORN 01 SET | SG MINIPLA | 2.508 |
 | EgolGear Limited Special Color *(premio de campaña)* | EGOLGEAR PROMOCIONALES | — |
 
-Los cinco son de septiembre sin día anunciado. El premio se envía «a partir de
-septiembre» y la campaña cierra el 2027/03/31, así que su `date` habrá que
-fijarlo a ojo o esperar. Ver §6.3.
+Los cinco son de septiembre **sin día anunciado**. En el catálogo llevan
+`dateExact:false`: la fecha `2026-09-01` es solo el ancla que los coloca en su
+acordeón, y la tarjeta muestra **N/D** en vez de inventarse un día. Ese día
+tampoco cuenta como tanda en la cabecera del mes ni alimenta la cuenta atrás —
+septiembre se rotula «Día 5 · 5 sin fecha». El premio se envía «a partir de
+septiembre» y la campaña cierra el 2027/03/31. Ver §6.3.
 
 ### 2026/10/03
 
@@ -195,7 +198,9 @@ que sale en tres cajas distintas.
 que `Zetsu-Goukaku` es Zetsu + Goukaku, y refuerza que las dos piezas de §7.1
 son distintas.
 
-**Los dos `Hen'ishu` van como entradas propias, no como `variants`.** Decidido.
+**Los dos `Hen'ishu` van como entradas propias y con familia propia.**
+Decidido, y la wiki oficial lo respalda: los trata como bichos distintos, no
+como una versión de Denkaku y Hokaku.
 Es una caja sorpresa de ocho SKU: si fueran variantes, sacar el Denkaku normal
 marcaría la línea completa mientras te sigue faltando un gear que solo se
 consigue con otra compra, y el contador mentiría. Myth hace lo mismo — reservó
@@ -208,8 +213,9 @@ Tres familias, para no dejar 24 piezas en lista plana:
 
 | `type` | Qué agrupa | DX | SG |
 |---|---|---|---|
-| `egolgear` | los normales | 17 | 7 |
+| `egolgear` | los normales | 17 | 5 |
 | `egolgear-kakuju` | los que tienen Kakuzyu | 6 | 1 |
+| `egolgear-henishu` | las especies mutantes (変異種) | — | 2 |
 | `zetsu-egolgear` | versiones absolutas sin figura propia | 2 | — |
 
 **La familia la decide el bicho, no la caja.** Un gear entra en
@@ -230,8 +236,7 @@ Consecuencias de esa regla:
 Los seis de `egolgear-kakuju` en DX: Enkaku, Zetsu-Enkaku, Zankaku, Saikaku,
 Hikaku y Goukaku.
 
-Los dos `Hen'ishu` de SG siguen en `egolgear`. Si quieres, pueden llevar familia
-propia.
+Los dos `Hen'ishu` de SG tienen su propia familia, `egolgear-henishu`.
 
 ### Promocional — cuenta como DX
 
@@ -396,39 +401,27 @@ molesta, sacarlo a una `line` propia es cambiar un campo.
 
 ## 7. Dudas abiertas
 
-### 7.1 Zetsu-Soukaku contra Zetsu-Goukaku — RESUELTO
+### 7.1 Zetsu-Soukaku contra Zetsu-Goukaku — CERRADO
 
-**Son dos piezas distintas.** Cerrado el 22 de agosto de 2026 con la tabla
-oficial de セット内容 del `EGOLGEAR SET` (`02.jpg` de su carpeta) y la foto de
-producto del `REPLICA SET`.
+**Son dos piezas distintas.** Confirmado por tres vías independientes:
 
-La tabla del EGOLGEAR SET nombra sus seis gears en katakana y marca el sexto con
-el sello **セット品限定** — exclusivo del set:
+1. La tabla oficial de セット内容 del `EGOLGEAR SET` nombra su sexto gear
+   **ゼツソウカク** y lo marca con el sello **セット品限定**.
+2. El arte interior de las dos piezas blancas no se parece: Zetsu-Soukaku lleva
+   cresta dorada en punta y dos colmillos curvos —双角, «dos cuernos»—, y
+   Zetsu-Goukaku un tocado dorado en abanico sobre una cara acorazada.
+3. La **wiki oficial** las lista como entradas separadas del bestiario:
+   Zetsu-Soukaku en Class A y Zetsu-Gokaku en Class S.
 
-`エンカク` · `サカク` · `ドクカク` · `レンカク` · `ネッカク` ·
-**`ゼツソウカク`**
+Los 24 de DX se sostienen, la exclusividad del EGOLGEAR SET es real, y
+`Zetsu-Soukaku` no lo cubre ningún otro producto: quien compre el REPLICA SET
+**no** se queda cubierto ese gear.
 
-ゼツソウカク = **Zetsu-Soukaku**, confirmando el guion y la grafía. Y comparando
-las dos piezas blancas lado a lado, el arte interior no se parece:
-
-| | Zetsu-Soukaku (EGOLGEAR SET) | Zetsu-Goukaku (REPLICA SET) |
-|---|---|---|
-| fondo | morado y azul | morado claro |
-| cabeza | cresta dorada en punta, dos colmillos curvos hacia abajo | tocado dorado abierto en abanico |
-| rasgos | cara blanca con destellos rojos finos | cara acorazada, ojos rojos, boca dentada roja |
-
-Los nombres cuadran con el diseño: 双角 son «dos cuernos» y ahí están los dos
-colmillos curvos; 剛角 es «cuerno duro» y encaja con el Goukaku acorazado del
-mecha DX. La carcasa de mármol blanco es la misma en las dos, como en todos los
-EgolGear — lo que cambia es el panel.
-
-**Consecuencias:** los 24 de DX se sostienen, la exclusividad del EGOLGEAR SET es
-real y va anotada en la tarjeta, y `Zetsu-Soukaku` no se cubre por ningún otro
-producto. Ojo con eso al declarar `reemplaza`: quien compre el REPLICA SET **no**
-se queda cubierto el Zetsu-Soukaku.
-
-Un apunte: el bicho base **Soukaku** solo existe hoy como EgolGear del random box
-SG. No hay mecha DX de Soukaku.
+**Una grafía que queda por afinar.** La wiki escribe **Zetsu-Gokaku**, sin la
+vocal larga, mientras que la lista de contenidos de Bandai escribe
+`Zetsugoukakuegorgia` y su descripción «Zetsugoukaku». El catálogo usa
+**Zetsu-Goukaku** siguiendo el §8 —manda la caja sobre la transcripción—, pero
+si prefieres alinearlo con la wiki es cambiar dos líneas.
 
 ### 7.2 ZETSU-ENKAKU en dos categorías — RESUELTO
 
@@ -591,6 +584,20 @@ capturas. Base: `https://toy.bandai.co.jp/en/article/detail/?cate=item&path=`
 | `bandai.co.jp/candy/products/2026/4570117934261000.html` | MINIPLA OMEGAHORN 01 SET |
 | `bandai.co.jp/candy/camp/2026RED/` | PROJECT R.E.D. チョコキャンペーン (premio promocional) |
 
+### Wiki oficial
+
+`https://projectred.miraheze.org/wiki/Kakuseihunter_Omegahorn`
+
+**Sirve para aclarar dudas, no para alimentar el catálogo.** Lista personajes
+del bestiario que todavía no tienen producto —Hekikaku, Zetsu-Zankaku,
+Zetsu-Hikaku, Zetsu-Saikaku, Zetsu-Hekikaku, Zetsu-Sakaku— y también las clases
+(Ω, S, A) de cada uno. Nada de eso entra aquí mientras no haya juguete: una
+pieza que ningún producto trae no se puede marcar nunca, y la auditoría la
+señalaría con razón.
+
+Para lo que sí vale, y muy bien: confirmar que dos bichos parecidos son
+distintos, y resolver grafías.
+
 ---
 
 ## 11. Estado para producción
@@ -665,7 +672,7 @@ del §4. No es un fallo de la auditoría, es la forma correcta para esa categor�
 
 ### Decisiones que siguen abiertas
 
-**Cerradas el 22 de agosto de 2026:**
+**Cerradas:**
 
 | # | Decisión | Dónde |
 |---|---|---|
@@ -673,15 +680,17 @@ del §4. No es un fallo de la auditoría, es la forma correcta para esa categor�
 | 2 | El promocional va con **`line:"DX"`** | §7.6 |
 | 3 | Tres familias: `egolgear`, `egolgear-kakuju`, `zetsu-egolgear` | §3 |
 | 4 | Colores: **rojo** para EgolGear DX, **turquesa** para SG, tonos suaves el resto | §9 |
-| 6 | `Zetsu-Soukaku` ≠ `Zetsu-Goukaku`, **confirmado con la tabla oficial** | §7.1 |
+| 6 | `Zetsu-Soukaku` ≠ `Zetsu-Goukaku`, **confirmado por caja y wiki oficial** | §7.1 |
+| 5 | Clave de `localStorage`: **`omegahorn-catalog-v1`** | §9 |
+| — | Los `Hen'ishu` llevan **familia propia**, `egolgear-henishu` | §3 |
+| — | Fechas sin día: **`dateExact:false` y N/D en la tarjeta** | §1 |
 
 **Siguen abiertas:**
 
 | # | Qué | Dónde |
 |---|---|---|
-| 5 | Clave de `localStorage` — se fija al analizar el `index.html` de Myth | §9 |
-| — | Si el `Enkaku EgolGear` pasa a `egolgear-kakuju` | §3 |
-| — | Si los dos `Hen'ishu` de SG llevan familia propia | §3 |
+| — | Si `Zetsu-Goukaku` se alinea con la grafía de la wiki (`Zetsu-Gokaku`) | §7.1 |
+| — | El día exacto de los cinco productos de septiembre, cuando Bandai lo anuncie | §1 |
 
 ### Lo que falta traer de Myth
 

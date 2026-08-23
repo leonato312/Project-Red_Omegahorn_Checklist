@@ -596,6 +596,7 @@ const COLECCIONES = {
 const FAMILIAS = {
   "egolgear":        "EgolGear",
   "egolgear-kakuju": "EgolGear con Kakuzyu",
+  "egolgear-henishu":"EgolGear Hen'ishu",
   "zetsu-egolgear":  "Zetsu EgolGear",
   "kakuzyu":           "Kakuzyu",
   "device":          "Dispositivos"
@@ -719,8 +720,10 @@ const PIEZAS_CATALOG = [
   { id:"sg-eg-roukaku",         name:"Roukaku EgolGear",         collection:"egolgear", type:"egolgear", line:"SG" },
   { id:"sg-eg-soukaku",         name:"Soukaku EgolGear",         collection:"egolgear", type:"egolgear", line:"SG" },
   { id:"sg-eg-hokaku",          name:"Hokaku EgolGear",          collection:"egolgear", type:"egolgear", line:"SG" },
-  { id:"sg-eg-denkaku-henishu", name:"Denkaku Hen'ishu EgolGear", collection:"egolgear", type:"egolgear", line:"SG", meaning:"変異種 · especie mutante" },
-  { id:"sg-eg-hokaku-henishu",  name:"Hokaku Hen'ishu EgolGear",  collection:"egolgear", type:"egolgear", line:"SG", meaning:"変異種 · especie mutante" },
+  /* Familia propia: la wiki oficial los trata como bichos distintos, no como
+     una version de Denkaku y Hokaku. */
+  { id:"sg-eg-denkaku-henishu", name:"Denkaku Hen'ishu EgolGear", collection:"egolgear", type:"egolgear-henishu", line:"SG", meaning:"変異種 · especie mutante" },
+  { id:"sg-eg-hokaku-henishu",  name:"Hokaku Hen'ishu EgolGear",  collection:"egolgear", type:"egolgear-henishu", line:"SG", meaning:"変異種 · especie mutante" },
 
   /* ======================= KAKUZYUS (secundario) ======================= */
   /* Los bichos en si. Se titulan "Kakuzyu" en las fichas de ahora, pero
@@ -761,6 +764,11 @@ const PIEZAS_CATALOG = [
      date      -> "AAAA-MM-DD". El mes del acordeon se deduce de aqui.
      dateType  -> "release" | "preorder". Hoy todos son release: ninguna ficha
                   indica preventa exclusiva online.
+     dateExact -> OPCIONAL, por defecto true. Ponlo a false cuando Bandai haya
+                  anunciado el mes pero no el dia. La fecha sigue haciendo
+                  falta para colocar el producto en su acordeon, pero la
+                  tarjeta muestra "N/D" en vez de inventarse un dia, y ese dia
+                  no cuenta como tanda ni alimenta la cuenta atras.
      price     -> yenes con impuestos, o null si no hay
      priceLabel-> OPCIONAL. Matiza o sustituye al precio.
      alsoIn    -> OPCIONAL. Otras subcategorias donde tambien se lista. Sigue
@@ -938,7 +946,7 @@ const PRODUCTS = [
 
   /* =================== SEPTIEMBRE 2026 =================== */
   { id:"sg-yudo-enkaku", title:"YU-DO KAKUSEIHUNTER OMEGAHORN 01 ENKAKU", category:"SG YU-DO",
-    date:"2026-09-01", dateType:"release", price:1254, priceLabel:"3 cajas x 418",
+    date:"2026-09-01", dateType:"release", dateExact:false, price:1254, priceLabel:"3 cajas x 418",
     img:"SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 ENKAKU/01-thumb.webp",
     gallery:["SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 ENKAKU/01.webp",
              "SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 ENKAKU/02.webp",
@@ -946,20 +954,20 @@ const PRODUCTS = [
              "SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 ENKAKU/04.webp"],
     contains:["kz-sg-enkaku"] },
   { id:"sg-yudo-omegahorn", title:"YU-DO KAKUSEIHUNTER OMEGAHORN 01 OMEGAHORN", category:"SG YU-DO",
-    date:"2026-09-01", dateType:"release", price:836, priceLabel:"2 cajas x 418",
+    date:"2026-09-01", dateType:"release", dateExact:false, price:836, priceLabel:"2 cajas x 418",
     img:"SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 OMEGAHORN/01-thumb.webp",
     gallery:["SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 OMEGAHORN/01.webp",
              "SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 OMEGAHORN/02.webp",
              "SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 OMEGAHORN/03.webp"],
     contains:["oh-sg","sg-eg-enkaku"] },
   { id:"sg-yudo-captain", title:"YU-DO KAKUSEIHUNTER OMEGAHORN 01 CAPTAIN OMEGAHORN", category:"SG YU-DO",
-    date:"2026-09-01", dateType:"release", price:418,
+    date:"2026-09-01", dateType:"release", dateExact:false, price:418,
     img:"SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 CAPTAIN OMEGAHORN/01-thumb.webp",
     gallery:["SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 CAPTAIN OMEGAHORN/01.webp",
              "SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 CAPTAIN OMEGAHORN/02.webp"],
     contains:[] },
   { id:"sg-minipla-set", title:"MINIPLA KAKUSEIHUNTER OMEGAHORN 01 SET", category:"SG MINIPLA",
-    date:"2026-09-01", dateType:"release", price:2508,
+    date:"2026-09-01", dateType:"release", dateExact:false, price:2508,
     reemplaza:["sg-yudo-enkaku","sg-yudo-omegahorn","sg-yudo-captain"],
     img:"SG MINIPLA/MINIPLA KAKUSEIHUNTER OMEGAHORN 01 SET/PACKAGE-thumb.webp",
     gallery:["SG MINIPLA/MINIPLA KAKUSEIHUNTER OMEGAHORN 01 SET/PACKAGE.webp",
@@ -973,7 +981,7 @@ const PRODUCTS = [
              "SG MINIPLA/MINIPLA KAKUSEIHUNTER OMEGAHORN 01 SET/08.webp"],
     contains:["kz-sg-enkaku","oh-sg","sg-eg-enkaku"] },
   { id:"promo-special-color", title:"PROJECT RED CHOCO CAMPAIGN — EGOLGEAR LIMITED SPECIAL COLOR", category:"EGOLGEAR PROMOCIONALES",
-    date:"2026-09-01", dateType:"release", price:null, priceLabel:"Premio · 2.000 unidades",
+    date:"2026-09-01", dateType:"release", dateExact:false, price:null, priceLabel:"Premio · 2.000 unidades",
     img:"EGOLGEAR PROMOCIONALES/PROJECT RED CHOCO CAMPAIGN-EgolGear Limited Special Color-thumb.webp",
     gallery:["EGOLGEAR PROMOCIONALES/PROJECT RED CHOCO CAMPAIGN-EgolGear Limited Special Color.webp"],
     contains:["eg-promo-special"] },
@@ -1199,13 +1207,25 @@ const daysUntil = s => Math.round((parseDate(s) - today()) / 86400000);
 
 const sortedMonthKeys = () => [...new Set(PRODUCTS.map(p => p.month))].sort();
 
-/* Proxima tanda = el primer mes que aun tiene algun lanzamiento por venir. */
+/* Proxima tanda = el primer mes que aun tiene algun lanzamiento por venir.
+   Los productos con `dateExact:false` no cuentan: su dia es un marcador para
+   colocarlos en el mes, no una fecha, y no puede mandar en la cuenta atras. */
 function nextWaveKey(){
-  return PRODUCTS.filter(p => daysUntil(p.date) >= 0).map(p => p.month).sort()[0] || null;
+  return PRODUCTS.filter(p => p.dateExact !== false && daysUntil(p.date) >= 0)
+                 .map(p => p.month).sort()[0] || null;
 }
 
+/* Un producto cuyo dia no se ha anunciado. */
+const sinDia = p => p.dateExact === false;
+
+/* Dias de salida confirmados del mes. Los `dateExact:false` se excluyen:
+   anunciar "2 tandas: dias 1 y 5" cuando el 1 nos lo hemos inventado seria
+   peor que no decir nada. */
 const dropDates = key =>
-  [...new Set(PRODUCTS.filter(p => p.month === key).map(p => p.date))].sort();
+  [...new Set(PRODUCTS.filter(p => p.month === key && !sinDia(p)).map(p => p.date))].sort();
+
+/* Cuantos productos del mes estan pendientes de que Bandai anuncie el dia. */
+const sinDiaEnMes = key => PRODUCTS.filter(p => p.month === key && sinDia(p)).length;
 
 
 /* ===========================================================================
@@ -1228,15 +1248,26 @@ function monthHTML(key, isNext){
 
   const drops    = dropDates(key);
   const dropsTxt = drops.map(d => Number(d.split("-")[2])).join(" · ");
-  const past     = daysUntil(drops[drops.length - 1]) < 0;
+  const pendN    = sinDiaEnMes(key);
+  /* Un mes solo se da por pasado si todo lo que tiene fecha ya salio y no
+     queda nada pendiente de anunciar. */
+  const past     = drops.length > 0 && daysUntil(drops[drops.length - 1]) < 0 && !pendN;
+
+  let rotulo;
+  if(!drops.length)        rotulo = "Dia por anunciar";
+  else if(drops.length > 1) rotulo = drops.length + " tandas: dias " + dropsTxt;
+  else                      rotulo = "Dia " + dropsTxt;
+  if(drops.length && pendN) rotulo += " · " + pendN + " sin fecha";
 
   /* Cuenta atras solo en la proxima tanda: es el dato que se viene a buscar. */
   let countdown = "";
   if(isNext){
     const next = drops.find(d => daysUntil(d) >= 0);
-    const n    = next ? daysUntil(next) : null;
-    const txt  = n === 0 ? "Sale hoy" : n === 1 ? "Manana" : "En " + n + " dias";
-    countdown  = `<span class="chip chip--next">Proxima tanda · ${esc(txt)}</span>`;
+    if(next !== undefined){
+      const n   = daysUntil(next);
+      const txt = n === 0 ? "Sale hoy" : n === 1 ? "Manana" : "En " + n + " dias";
+      countdown = `<span class="chip chip--next">Proxima tanda · ${esc(txt)}</span>`;
+    }
   }
 
   const body = CATEGORY_ORDER.map(cat => {
@@ -1253,9 +1284,7 @@ function monthHTML(key, isNext){
         <polyline points="9 18 15 12 9 6"/>
       </svg>
       <span class="month__title">${esc(monthLabel(key))}</span>
-      <span class="month__drops" title="Fechas de salida de este mes">
-        ${drops.length > 1 ? esc(drops.length + " tandas: dias " + dropsTxt) : esc("Dia " + dropsTxt)}
-      </span>
+      <span class="month__drops" title="Fechas de salida de este mes">${esc(rotulo)}</span>
       <span class="month__meta">
         ${countdown}
         ${complete ? '<span class="chip chip--done">Completo</span>' : ""}
@@ -1270,7 +1299,10 @@ function monthHTML(key, isNext){
 
 function subcatHTML(category, items){
   /* Dentro de una subcategoria mandan las fechas: primero lo que sale antes. */
-  const sorted = [...items].sort((a,b) => a.date.localeCompare(b.date));
+  /* Mandan las fechas: primero lo que sale antes. Lo que aun no tiene dia
+     anunciado se va al final, que es donde estorba menos. */
+  const sorted = [...items].sort((a,b) =>
+    (sinDia(a) - sinDia(b)) || a.date.localeCompare(b.date));
   return `
   <section class="subcat">
     <header class="subcat__head">
@@ -1347,8 +1379,9 @@ function cardHTML(p, inCategory){
         ${price
           ? `<span class="card__price"${p.priceLabel ? ` title="${esc(p.priceLabel)}"` : ""}>${esc(price)}</span>`
           : `<span class="card__price card__price--tbd">${esc(p.priceLabel || "Precio por confirmar")}</span>`}
-        <span class="card__date${daysUntil(p.date) < 0 ? " card__date--past" : ""}">
-          ${esc(formatDay(p.date))}
+        <span class="card__date${!sinDia(p) && daysUntil(p.date) < 0 ? " card__date--past" : ""}"
+              ${sinDia(p) ? 'title="Bandai ha anunciado el mes pero todavia no el dia"' : ""}>
+          ${sinDia(p) ? "N/D" : esc(formatDay(p.date))}
         </span>
       </div>
 
