@@ -112,6 +112,7 @@ body::before{
   max-width:1560px; margin:0 auto; padding:14px 26px;
   display:flex; align-items:center; gap:26px; flex-wrap:wrap;
 }
+.brand{ display:flex; flex-direction:column; gap:2px; margin-right:auto; }
 .brand__title{
   margin:0; font-size:20px; font-weight:800; letter-spacing:.08em; text-transform:uppercase;
 }
@@ -121,9 +122,9 @@ body::before{
   letter-spacing:.09em; text-transform:uppercase;
 }
 
-.mini-stats{ display:flex; gap:11px; flex:1; flex-wrap:wrap; }
+.mini-stats{ display:flex; gap:11px; flex-wrap:wrap; }
 .mini-stat{
-  min-width:150px; flex:1; padding:9px 13px; border-radius:var(--radius-s);
+  min-width:152px; padding:9px 13px; border-radius:var(--radius-s);
   background:var(--surface-1); border:1px solid var(--border);
 }
 .mini-stat__top{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
@@ -145,10 +146,10 @@ body::before{
 .mini-stat--dx        .mini-stat__fill { background:var(--dx); }
 .mini-stat--sg        .mini-stat__label{ color:var(--sg); }
 .mini-stat--sg        .mini-stat__fill { background:var(--sg); }
-.mini-stat--kakuzyu   { min-width:118px; flex:0 1 auto; }
+.mini-stat--kakuzyu   { min-width:138px; }
 .mini-stat--kakuzyu   .mini-stat__label{ color:var(--kakuzyu); }
 .mini-stat--kakuzyu   .mini-stat__fill { background:var(--kakuzyu); }
-.mini-stat--omegahorn { min-width:118px; flex:0 1 auto; }
+.mini-stat--omegahorn { min-width:138px; }
 .mini-stat--omegahorn .mini-stat__label{ color:var(--omegahorn); }
 .mini-stat--omegahorn .mini-stat__fill { background:var(--omegahorn); }
 
@@ -481,7 +482,8 @@ body::before{
    =========================================================================== */
 @media (max-width:1080px){
   .header__inner{ gap:14px; padding:12px 18px; }
-  .mini-stats{ order:3; width:100%; flex:none; }
+  .mini-stats{ order:3; width:100%; }
+  .mini-stat{ flex:1; min-width:0; }
   .main{ padding:22px 16px 70px; }
   .month__inner{ padding:0 14px 18px; }
   .grid{ grid-template-columns:repeat(auto-fill, minmax(178px,1fr)); gap:13px; }
