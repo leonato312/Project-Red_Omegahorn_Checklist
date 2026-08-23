@@ -595,7 +595,7 @@ const COLECCIONES = {
 /* Familias dentro de una coleccion; el orden aqui es el orden en el panel. */
 const FAMILIAS = {
   "egolgear":        "EgolGear",
-  "egolgear-kakuju": "EgolGear de Horned Beast",
+  "egolgear-kakuju": "EgolGear con Horned Beast",
   "zetsu-egolgear":  "Zetsu EgolGear",
   "beast":           "Horned Beasts",
   "device":          "Dispositivos"
@@ -670,9 +670,6 @@ const PIEZAS_CATALOG = [
   { id:"eg-youkaku",  name:"Youkaku EgolGear",  collection:"egolgear", type:"egolgear", line:"DX", meaning:"Melting Horn" },
 
   /* ---------- Los que solo vienen dentro de un dispositivo ---------- */
-  /* Enkaku no viene con su mecha: el DX MEGA FLAME HORN ENKAKU suelto es el
-     unico que no trae gear. Este llega con el Omega Horn. */
-  { id:"eg-enkaku",   name:"Enkaku EgolGear",   collection:"egolgear", type:"egolgear", line:"DX" },
   { id:"eg-bikaku",   name:"Bikaku EgolGear",   collection:"egolgear", type:"egolgear", line:"DX", meaning:"Beautiful Horn" },
   { id:"eg-gaikaku",  name:"Gaikaku EgolGear",  collection:"egolgear", type:"egolgear", line:"DX", meaning:"Armor Horn" },
   { id:"eg-rinkaku",  name:"Rinkaku EgolGear",  collection:"egolgear", type:"egolgear", line:"DX", meaning:"Forest Horn" },
@@ -686,17 +683,27 @@ const PIEZAS_CATALOG = [
   { id:"eg-promo-special", name:"EgolGear Limited Special Color", collection:"egolgear",
     type:"egolgear", line:"DX", meaning:"dorado · premio de campana" },
 
-  /* ---------- Los que vienen dentro de un Horned Beast ---------- */
+  /* ---------- Los que tienen Horned Beast ---------- */
+  /* La familia la decide el bicho, no la caja: un gear entra aqui si pertenece
+     a un Horned Beast o si existe figura de ese Horned Beast.
+     Por eso Enkaku entra aunque no venga con su mecha —el DX MEGA FLAME HORN
+     ENKAKU suelto es el unico sin gear y este llega con el Omega Horn—, y por
+     eso Zetsu-Enkaku entra aunque lleve el prefijo Zetsu: los dos tienen
+     figura. Zetsu-Soukaku y Zetsu-Goukaku no la tienen, asi que se quedan en
+     su propia familia. */
+  { id:"eg-enkaku",   name:"Enkaku EgolGear",   collection:"egolgear", type:"egolgear-kakuju", line:"DX" },
+  { id:"eg-zetsu-enkaku", name:"Zetsu-Enkaku EgolGear", collection:"egolgear", type:"egolgear-kakuju", line:"DX" },
   { id:"eg-zankaku",  name:"Zankaku EgolGear",  collection:"egolgear", type:"egolgear-kakuju", line:"DX" },
   { id:"eg-saikaku",  name:"Saikaku EgolGear",  collection:"egolgear", type:"egolgear-kakuju", line:"DX" },
   { id:"eg-hikaku",   name:"Hikaku EgolGear",   collection:"egolgear", type:"egolgear-kakuju", line:"DX" },
   { id:"eg-goukaku",  name:"Goukaku EgolGear",  collection:"egolgear", type:"egolgear-kakuju", line:"DX" },
 
-  /* ---------- Las versiones absolutas, en blanco y oro ---------- */
+  /* ---------- Las versiones absolutas sin figura propia ---------- */
+  /* En blanco y oro. Zetsu-Enkaku no esta aqui: tiene figura, asi que se va
+     con los de Horned Beast. */
   /* Zetsu-Soukaku y Zetsu-Goukaku son piezas DISTINTAS: comprobado con la
      tabla oficial de セット内容, que marca la primera con セット品限定, y
      comparando el arte interior de las dos. Los dos bichos base existen. */
-  { id:"eg-zetsu-enkaku",  name:"Zetsu-Enkaku EgolGear",  collection:"egolgear", type:"zetsu-egolgear", line:"DX" },
   { id:"eg-zetsu-soukaku", name:"Zetsu-Soukaku EgolGear", collection:"egolgear", type:"zetsu-egolgear", line:"DX", meaning:"exclusivo del EGOLGEAR SET" },
   { id:"eg-zetsu-goukaku", name:"Zetsu-Goukaku EgolGear", collection:"egolgear", type:"zetsu-egolgear", line:"DX", meaning:"Absolute Hard Horn" },
 
@@ -706,7 +713,7 @@ const PIEZAS_CATALOG = [
      Los dos Hen'ishu van como entradas propias, no como variantes de Denkaku
      y Hokaku: son ocho SKU de una caja sorpresa, y si fueran variantes sacar
      el normal marcaria la linea completa mientras te falta un gear fisico. */
-  { id:"sg-eg-enkaku",          name:"Enkaku EgolGear",          collection:"egolgear", type:"egolgear", line:"SG" },
+  { id:"sg-eg-enkaku",          name:"Enkaku EgolGear",          collection:"egolgear", type:"egolgear-kakuju", line:"SG" },
   { id:"sg-eg-denkaku",         name:"Denkaku EgolGear",         collection:"egolgear", type:"egolgear", line:"SG" },
   { id:"sg-eg-ninkaku",         name:"Ninkaku EgolGear",         collection:"egolgear", type:"egolgear", line:"SG" },
   { id:"sg-eg-roukaku",         name:"Roukaku EgolGear",         collection:"egolgear", type:"egolgear", line:"SG" },

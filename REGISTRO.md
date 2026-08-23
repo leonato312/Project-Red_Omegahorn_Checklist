@@ -206,22 +206,32 @@ propias a los Legend Eggs, que también comparten nombre con los normales.
 
 Tres familias, para no dejar 24 piezas en lista plana:
 
-| `type` | Qué agrupa | DX |
-|---|---|---|
-| `egolgear` | los normales | 17 |
-| `egolgear-kakuju` | los que vienen dentro de un Horned Beast | 4 |
-| `zetsu-egolgear` | las versiones absolutas, en blanco y oro | 3 |
+| `type` | Qué agrupa | DX | SG |
+|---|---|---|---|
+| `egolgear` | los normales | 17 | 7 |
+| `egolgear-kakuju` | los que tienen Horned Beast | 6 | 1 |
+| `zetsu-egolgear` | versiones absolutas sin figura propia | 2 | — |
 
-`egolgear-kakuju` son **Zankaku, Saikaku, Hikaku y Goukaku** — los cuatro que
-Bandai mete en la caja de su mecha.
+**La familia la decide el bicho, no la caja.** Un gear entra en
+`egolgear-kakuju` si pertenece a un Horned Beast **o si existe figura de ese
+Horned Beast**. No importa en qué caja venga el gear.
 
-**Caso raro, por decidir:** el `Enkaku EgolGear` queda en `egolgear` porque no
-viene con su mecha — el `DX MEGA FLAME HORN ENKAKU` suelto no trae gear — sino
-con el Omega Horn. Si prefieres agruparlo por lo que representa en vez de por
-dónde viene, se mueve a `egolgear-kakuju` y quedan 16 / 5 / 3.
+Consecuencias de esa regla:
 
-En SG los ocho van de momento en `egolgear`. Si quieres, los dos `Hen'ishu`
-pueden llevar su propia familia.
+- **`Enkaku EgolGear` entra**, aunque no venga con su mecha: el
+  `DX MEGA FLAME HORN ENKAKU` suelto es el único sin gear y este llega con el
+  Omega Horn. Hay figura de Enkaku, así que basta.
+- **`Zetsu-Enkaku EgolGear` entra también**, y por tanto **los tres `Zetsu-` ya
+  no van juntos**. Zetsu-Enkaku tiene figura; Zetsu-Soukaku y Zetsu-Goukaku no,
+  así que esos dos se quedan solos en `zetsu-egolgear`.
+- **En SG entra el `Enkaku EgolGear`**, porque el Minipla saca su figura de
+  Enkaku. Los otros siete no tienen figura y se quedan en `egolgear`.
+
+Los seis de `egolgear-kakuju` en DX: Enkaku, Zetsu-Enkaku, Zankaku, Saikaku,
+Hikaku y Goukaku.
+
+Los dos `Hen'ishu` de SG siguen en `egolgear`. Si quieres, pueden llevar familia
+propia.
 
 ### Promocional — cuenta como DX
 
