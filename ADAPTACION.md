@@ -254,7 +254,11 @@ fallo; es que no hay más resolución publicada.
 | 6 | `PRODUCTS`: 25 productos, precios de yu-dō corregidos | hecho |
 | 7 | `tools/` con las 25 carpetas y el suelto | hecho |
 | 8 | `audit.py` → `plan.py` → `build_all.py` → `audit.py` | hecho, sin incidencias |
-| 9 | Repositorio público y GitHub Pages desde `main` / root | **pendiente** |
+| 9 | Repositorio público y GitHub Pages desde `main` / root | hecho |
+
+Publicado en **https://leonato312.github.io/Project-Red_Omegahorn/**. Las 126
+rutas de imagen verificadas contra el servidor: todas 200, ninguna mayúscula
+mal puesta.
 
 ### Los dos huecos de las herramientas de Myth, arreglados
 
