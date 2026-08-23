@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kakusei Hunter Omegahorn — Calendario de tandas</title>
+<title>Kakusei Hunter Omegahorn — Calendario de Waves</title>
 
 <!--
   ============================================================================
-  KAKUSEI HUNTER OMEGAHORN — CATALOGO DE TANDAS  ·  v1.0
+  KAKUSEI HUNTER OMEGAHORN — CALENDARIO DE WAVES  ·  v1.0
   Project Red · Super Sentai
   ============================================================================
   Archivo unico: HTML5 + CSS3 (Grid/Flexbox) + Vanilla JS. Sin frameworks,
   sin build, sin dependencias.
 
   DOS PREGUNTAS QUE JUSTIFICAN LA PAGINA
-    1. Cuando llega la proxima tanda  -> el mes es la categoria raiz.
+    1. Cuando llega la proxima wave   -> el mes es la categoria raiz.
     2. Que me falta del coleccionable -> checklist derivada, nunca manual.
 
   DONDE SE EDITA (lo unico que hay que tocar para mantenerla)
@@ -116,7 +116,10 @@ body::before{
   margin:0; font-size:20px; font-weight:800; letter-spacing:.08em; text-transform:uppercase;
 }
 .brand__title span{ color:var(--dx); }
-.brand__sub{ font-size:11.5px; color:var(--text-mute); letter-spacing:.05em; }
+.brand__sub{
+  font-size:11px; color:var(--text-mute);
+  letter-spacing:.09em; text-transform:uppercase;
+}
 
 .mini-stats{ display:flex; gap:12px; flex:1; flex-wrap:wrap; min-width:280px; }
 .mini-stat{ min-width:112px; flex:1; }
@@ -153,7 +156,7 @@ body::before{
   background:var(--surface-1); border:1px solid var(--border);
   border-radius:var(--radius); margin-bottom:16px; overflow:hidden;
 }
-/* Resalta la tanda mas proxima que aun no ha salido */
+/* Resalta la wave mas proxima que aun no ha salido */
 .month--next{ border-color:rgba(232,72,79,.45); box-shadow:0 0 0 1px rgba(232,72,79,.14); }
 /* Mes ya pasado: se atenua para que no compita con lo que esta por venir */
 .month--past{ opacity:.62; }
@@ -452,6 +455,7 @@ body::before{
 }
 @media (max-width:560px){
   .brand__title{ font-size:17px; }
+  .brand__sub{ display:none; }
   .month__drops{ display:none; }
   .grid{ grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); }
   .viewer{ padding:52px 12px; }
@@ -469,7 +473,7 @@ body::before{
   <div class="header__inner">
     <div class="brand">
       <h1 class="brand__title">KAKUSEI HUNTER <span>OMEGAHORN</span></h1>
-      <span class="brand__sub">Calendario de tandas &amp; checklist de EgolGear</span>
+      <span class="brand__sub">Calendario de waves &amp; checklist EGOLGEAR</span>
     </div>
 
     <!-- Progreso global; se rellena desde JS -->
@@ -1207,7 +1211,7 @@ const daysUntil = s => Math.round((parseDate(s) - today()) / 86400000);
 
 const sortedMonthKeys = () => [...new Set(PRODUCTS.map(p => p.month))].sort();
 
-/* Proxima tanda = el primer mes que aun tiene algun lanzamiento por venir.
+/* Proxima wave = el primer mes que aun tiene algun lanzamiento por venir.
    Los productos con `dateExact:false` no cuentan: su dia es un marcador para
    colocarlos en el mes, no una fecha, y no puede mandar en la cuenta atras. */
 function nextWaveKey(){
@@ -1259,14 +1263,17 @@ function monthHTML(key, isNext){
   else                      rotulo = "Dia " + dropsTxt;
   if(drops.length && pendN) rotulo += " · " + pendN + " sin fecha";
 
-  /* Cuenta atras solo en la proxima tanda: es el dato que se viene a buscar. */
+  /* Cuenta atras solo en la proxima wave: es el dato que se viene a buscar.
+     Ojo con el vocabulario, que aqui significan cosas distintas: una WAVE es el
+     ciclo de lanzamientos de un mes, y las TANDAS son los dias concretos de
+     salida dentro de ese mes. Septiembre es una wave con dos tandas. */
   let countdown = "";
   if(isNext){
     const next = drops.find(d => daysUntil(d) >= 0);
     if(next !== undefined){
       const n   = daysUntil(next);
       const txt = n === 0 ? "Sale hoy" : n === 1 ? "Manana" : "En " + n + " dias";
-      countdown = `<span class="chip chip--next">Proxima tanda · ${esc(txt)}</span>`;
+      countdown = `<span class="chip chip--next">Proxima wave · ${esc(txt)}</span>`;
     }
   }
 
