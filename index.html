@@ -1,0 +1,1846 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kakusei Hunter Omegahorn — Calendario de tandas</title>
+
+<!--
+  ============================================================================
+  KAKUSEI HUNTER OMEGAHORN — CATALOGO DE TANDAS  ·  v1.0
+  Project Red · Super Sentai
+  ============================================================================
+  Archivo unico: HTML5 + CSS3 (Grid/Flexbox) + Vanilla JS. Sin frameworks,
+  sin build, sin dependencias.
+
+  DOS PREGUNTAS QUE JUSTIFICAN LA PAGINA
+    1. Cuando llega la proxima tanda  -> el mes es la categoria raiz.
+    2. Que me falta del coleccionable -> checklist derivada, nunca manual.
+
+  DONDE SE EDITA (lo unico que hay que tocar para mantenerla)
+    · PIEZAS_CATALOG -> las piezas coleccionables de las tres colecciones.
+    · PRODUCTS       -> productos: fecha, precio, imagenes y que piezas traen.
+    · MONTHS         -> rotulo visible de cada mes.
+  El resto —grids, contadores, barras, cobertura— se genera solo.
+
+  QUE CAMBIA RESPECTO A MYTH
+    Myth tenia UNA coleccion repartida (los Eggs) y las demas checklists eran
+    categorias donde un producto = una pieza. Aqui hay TRES colecciones
+    repartidas: EgolGear, Horned Beasts y Omegahorn aparecen cada una en varios
+    productos distintos. Por eso el catalogo de piezas lleva un campo
+    `collection` y el panel se genera recorriendolo, en vez de tener una rama
+    especial para el gimmick y otra para las categorias.
+  ============================================================================
+-->
+
+<style>
+/* ===========================================================================
+   1. TOKENS — cambiar un color aqui lo cambia en toda la pagina
+   =========================================================================== */
+:root{
+  /* Superficies, de mas profunda a mas elevada */
+  --bg:            #0b0d12;
+  --surface-1:     #12151d;
+  --surface-2:     #181c26;
+  --surface-3:     #212636;
+  --border:        #2a3040;
+  --border-strong: #3a4256;
+
+  /* Texto */
+  --text:      #e8eaf0;
+  --text-dim:  #99a1b3;
+  --text-mute: #667085;
+
+  /* Acentos. Los dos tonos fuertes son del coleccionable principal:
+     rojo = linea DX (el color de Enkaku y del Capitan),
+     turquesa = linea SG (el color del Omega Horn). */
+  --dx:      #e8484f;
+  --dx-soft: rgba(232,72,79,.14);
+  --sg:      #35c9d8;
+  --sg-soft: rgba(53,201,216,.14);
+
+  /* Colecciones secundarias: tonos suaves a proposito. Con varias barras en
+     la cabecera, si todas gritan igual se pierde cual importa. */
+  --beast:     #d9a441;
+  --omegahorn: #8f9bd6;
+
+  /* Estados de producto */
+  --pending:    #667085;
+  --reserved:   #e0a63a;
+  --owned:      #37d67a;
+  --owned-soft: rgba(55,214,122,.13);
+
+  /* Metricas */
+  --radius:   14px;
+  --radius-s: 9px;
+  --gap:      18px;
+  --panel-w:  410px;
+
+  --font: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* ===========================================================================
+   2. BASE
+   =========================================================================== */
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; scroll-padding-top:150px; }
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:var(--font); font-size:15px; line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+button{ font:inherit; color:inherit; cursor:pointer; }
+img{ max-width:100%; display:block; }
+
+/* Halo de fondo para que el oscuro no se sienta plano */
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(1100px 520px at 12% -8%, rgba(232,72,79,.10), transparent 60%),
+    radial-gradient(900px 460px at 92% -4%, rgba(53,201,216,.08), transparent 62%);
+}
+
+/* ===========================================================================
+   3. CABECERA — titulo + progreso global + acceso a las checklists
+   =========================================================================== */
+.header{
+  position:sticky; top:0; z-index:40;
+  background:rgba(11,13,18,.93); backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
+}
+.header__inner{
+  max-width:1560px; margin:0 auto; padding:14px 26px;
+  display:flex; align-items:center; gap:26px; flex-wrap:wrap;
+}
+.brand__title{
+  margin:0; font-size:20px; font-weight:800; letter-spacing:.08em; text-transform:uppercase;
+}
+.brand__title span{ color:var(--dx); }
+.brand__sub{ font-size:11.5px; color:var(--text-mute); letter-spacing:.05em; }
+
+.mini-stats{ display:flex; gap:12px; flex:1; flex-wrap:wrap; min-width:280px; }
+.mini-stat{ min-width:112px; flex:1; }
+.mini-stat__top{
+  display:flex; justify-content:space-between; gap:8px;
+  font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; margin-bottom:5px;
+}
+.mini-stat__label{ color:var(--text-mute); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.mini-stat__count{ color:var(--text-dim); font-variant-numeric:tabular-nums; }
+.mini-stat__bar{ height:4px; border-radius:99px; background:var(--surface-3); overflow:hidden; }
+.mini-stat__fill{ height:100%; border-radius:99px; transition:width .3s ease; }
+
+/* Las dos del coleccionable principal mandan; las secundarias van apagadas. */
+.mini-stat--dx        .mini-stat__fill{ background:var(--dx); }
+.mini-stat--sg        .mini-stat__fill{ background:var(--sg); }
+.mini-stat--beast     .mini-stat__fill{ background:var(--beast); opacity:.65; }
+.mini-stat--omegahorn .mini-stat__fill{ background:var(--omegahorn); opacity:.65; }
+.mini-stat--dx .mini-stat__label, .mini-stat--sg .mini-stat__label{ color:var(--text-dim); }
+
+.btn-panel{
+  display:inline-flex; align-items:center; gap:8px;
+  background:var(--dx); color:#1a0709; border:0;
+  padding:9px 16px; border-radius:99px; font-weight:700; font-size:13px;
+  transition:filter .15s ease;
+}
+.btn-panel:hover{ filter:brightness(1.1); }
+
+/* ===========================================================================
+   4. ACORDEON DE MES (categoria raiz)
+   =========================================================================== */
+.main{ position:relative; z-index:1; max-width:1560px; margin:0 auto; padding:30px 26px 90px; }
+
+.month{
+  background:var(--surface-1); border:1px solid var(--border);
+  border-radius:var(--radius); margin-bottom:16px; overflow:hidden;
+}
+/* Resalta la tanda mas proxima que aun no ha salido */
+.month--next{ border-color:rgba(232,72,79,.45); box-shadow:0 0 0 1px rgba(232,72,79,.14); }
+/* Mes ya pasado: se atenua para que no compita con lo que esta por venir */
+.month--past{ opacity:.62; }
+.month--past:hover{ opacity:1; }
+
+.month__head{
+  width:100%; display:flex; align-items:center; gap:14px;
+  background:none; border:0; padding:17px 20px; text-align:left;
+}
+.month__chevron{ width:17px; height:17px; color:var(--text-mute); transition:transform .22s ease; flex:none; }
+.month[data-open="true"] .month__chevron{ transform:rotate(90deg); }
+.month__title{ font-size:16.5px; font-weight:700; letter-spacing:.02em; }
+.month__drops{ font-size:11.5px; color:var(--text-mute); }
+.month__meta{ margin-left:auto; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+
+.chip{
+  font-size:11px; padding:3.5px 10px; border-radius:99px;
+  background:var(--surface-3); color:var(--text-dim); white-space:nowrap;
+}
+.chip--next{ background:var(--dx-soft); color:var(--dx); font-weight:700; }
+.chip--done{ background:var(--owned-soft); color:var(--owned); font-weight:700; }
+.chip--count{ font-variant-numeric:tabular-nums; }
+
+/* Animacion con max-height: sin librerias y sin saltos de layout */
+.month__body{ max-height:0; overflow:hidden; transition:max-height .32s ease; }
+.month[data-open="true"] .month__body{ max-height:20000px; }
+.month__inner{ padding:0 20px 22px; }
+
+/* ===========================================================================
+   5. SUBCATEGORIA + GRID DE TARJETAS
+   =========================================================================== */
+.subcat{ margin-top:24px; }
+.subcat__head{ display:flex; align-items:center; gap:12px; margin-bottom:13px; }
+.subcat__name{
+  font-size:11.5px; font-weight:700; letter-spacing:.13em;
+  text-transform:uppercase; color:var(--text-dim);
+}
+.subcat__rule{ flex:1; height:1px; background:var(--border); }
+.subcat__n{ font-size:11px; color:var(--text-mute); font-variant-numeric:tabular-nums; }
+
+.grid{
+  display:grid; gap:var(--gap);
+  grid-template-columns:repeat(auto-fill, minmax(232px, 1fr));
+}
+
+/* ---- Tarjeta ---- */
+.card{
+  background:var(--surface-2); border:1px solid var(--border);
+  border-radius:var(--radius); overflow:hidden;
+  display:flex; flex-direction:column;
+  transition:border-color .16s ease, transform .16s ease;
+}
+.card:hover{ border-color:var(--border-strong); transform:translateY(-2px); }
+.card[data-state="owned"]{ border-color:rgba(55,214,122,.4); }
+.card[data-state="reserved"]{ border-color:rgba(224,166,58,.36); }
+
+/* Producto que ya no hace falta porque viene dentro de otro que tienes.
+   Se atenua: aqui "cubierto" significa "no necesitas comprarlo". */
+.card[data-covered="true"]{ opacity:.58; }
+.card[data-covered="true"]:hover{ opacity:1; }
+
+.card--flash{ animation:flash 1.5s ease; }
+@keyframes flash{
+  0%,100%{ box-shadow:0 0 0 0 transparent; }
+  22%    { box-shadow:0 0 0 3px var(--dx); }
+}
+
+/* Zona de imagen con relacion fija: el grid no baila con fotos dispares */
+.card__media{
+  position:relative; aspect-ratio:1/1; background:var(--surface-3);
+  display:flex; align-items:center; justify-content:center; overflow:hidden;
+}
+.card__img{ width:100%; height:100%; object-fit:contain; position:relative; z-index:1; }
+
+/* Placeholder visible mientras la portada no cargue */
+.card__ph{
+  position:absolute; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:7px;
+  color:var(--text-mute); font-size:11px;
+  background:repeating-linear-gradient(45deg,var(--surface-3) 0 10px,var(--surface-2) 10px 20px);
+}
+/* En cuanto carga, fuera el rayado: si no se cuela por los bordes del contain */
+.card__media.is-loaded .card__ph{ display:none; }
+
+.card__badges{ position:absolute; top:9px; left:9px; z-index:2; display:flex; gap:5px; flex-wrap:wrap; }
+.badge{
+  font-size:9.5px; font-weight:800; letter-spacing:.07em; text-transform:uppercase;
+  padding:3px 7px; border-radius:5px; backdrop-filter:blur(4px);
+}
+.badge--dx{ background:var(--dx-soft); color:var(--dx); border:1px solid rgba(232,72,79,.4); }
+.badge--sg{ background:var(--sg-soft); color:var(--sg); border:1px solid rgba(53,201,216,.4); }
+.badge--random{ background:rgba(143,155,214,.16); color:var(--omegahorn); border:1px solid rgba(143,155,214,.4); }
+.badge--promo{ background:rgba(217,164,65,.16); color:var(--beast); border:1px solid rgba(217,164,65,.4); }
+/* Producto que pertenece a mas de una subcategoria */
+.badge--cross{ background:var(--surface-1); color:var(--text-dim); border:1px solid var(--border-strong); }
+
+/* Marca de obtenido, esquina superior derecha */
+.card__tick{
+  position:absolute; top:9px; right:9px; z-index:2;
+  width:23px; height:23px; border-radius:50%;
+  background:var(--owned); color:#04240f;
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:900;
+  opacity:0; transform:scale(.5); transition:all .18s ease;
+}
+.card[data-state="owned"] .card__tick{ opacity:1; transform:scale(1); }
+
+.card__body{ padding:13px 14px 14px; display:flex; flex-direction:column; gap:9px; flex:1; }
+.card__title{ margin:0; font-size:13px; font-weight:700; line-height:1.35; }
+.card__covered{
+  margin:0; font-size:11px; color:var(--owned);
+  background:var(--owned-soft); padding:5px 8px; border-radius:var(--radius-s);
+}
+.card__row{ margin-top:auto; display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
+.card__price{ font-size:14.5px; font-weight:800; font-variant-numeric:tabular-nums; }
+.card__price--tbd{ font-size:11.5px; font-weight:600; color:var(--text-mute); }
+.card__date{ font-size:11px; color:var(--text-dim); white-space:nowrap; }
+/* Ya salio: se apaga para que destaque lo que aun esta por venir */
+.card__date--past{ color:var(--text-mute); }
+
+/* ---- Selector de estado ---- */
+.states{ display:grid; grid-template-columns:repeat(3,1fr); gap:5px; }
+.state-btn{
+  background:var(--surface-3); border:1px solid var(--border);
+  border-radius:var(--radius-s); padding:6px 3px;
+  font-size:10.5px; font-weight:600; color:var(--text-dim);
+  transition:all .14s ease;
+}
+.state-btn:hover{ border-color:var(--border-strong); color:var(--text); }
+.state-btn[data-state="reserved"][aria-pressed="true"]{
+  background:rgba(224,166,58,.17); border-color:var(--reserved); color:var(--reserved);
+}
+.state-btn[data-state="owned"][aria-pressed="true"]{
+  background:var(--owned-soft); border-color:var(--owned); color:var(--owned);
+}
+.state-btn[data-state="pending"][aria-pressed="true"]{
+  background:var(--surface-1); border-color:var(--border-strong); color:var(--text);
+}
+
+/* ===========================================================================
+   6. DESPLEGABLE DE CONTENIDOS  (<details> nativo: accesible y sin JS extra)
+   =========================================================================== */
+.contents{ border:1px dashed var(--border-strong); border-radius:var(--radius-s); }
+/* Contenido garantizado: borde continuo. Caja sorpresa: punteado. */
+.contents--fijo{ border-style:solid; }
+.contents__toggle{
+  list-style:none; cursor:pointer; display:flex; align-items:center; gap:7px;
+  padding:7px 10px; font-size:11px; font-weight:600; color:var(--text-dim);
+}
+.contents__toggle::-webkit-details-marker{ display:none; }
+.contents__toggle:hover{ color:var(--text); }
+.contents__n{
+  margin-left:auto; background:var(--surface-3); color:var(--text-dim);
+  border-radius:99px; padding:1px 7px; font-size:10px; font-variant-numeric:tabular-nums;
+}
+.contents__arrow{ transition:transform .2s ease; flex:none; }
+.contents[open] .contents__arrow{ transform:rotate(90deg); }
+.contents__list{ list-style:none; margin:0; padding:0 10px 6px; display:flex; flex-direction:column; gap:3px; }
+.contents__item{ display:flex; align-items:center; gap:7px; font-size:11px; color:var(--text-mute); }
+.contents__item--owned{ color:var(--owned); }
+.contents__thumb{
+  width:15px; height:15px; border-radius:4px; background:var(--surface-3);
+  display:flex; align-items:center; justify-content:center; font-size:7px; flex:none;
+}
+.contents__name{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.contents__dot{
+  margin-left:auto; width:6px; height:6px; border-radius:50%;
+  background:var(--surface-3); border:1px solid var(--border-strong); flex:none;
+}
+.contents__item--owned .contents__dot{ background:var(--owned); border-color:var(--owned); }
+.contents__note{ margin:0; padding:0 10px 9px; font-size:10px; color:var(--text-mute); line-height:1.4; }
+
+/* ===========================================================================
+   7. VISOR DE GALERIA
+   =========================================================================== */
+.viewer{
+  position:fixed; inset:0; z-index:70; background:rgba(6,7,11,.94);
+  display:none; align-items:center; justify-content:center; padding:56px 64px;
+}
+.viewer[data-open="true"]{ display:flex; }
+.viewer__img{ max-width:100%; max-height:100%; object-fit:contain; }
+.viewer__bar{
+  position:absolute; top:0; left:0; right:0; display:flex; align-items:center; gap:14px;
+  padding:13px 18px; font-size:12.5px; color:var(--text-dim);
+  background:linear-gradient(rgba(0,0,0,.6), transparent);
+}
+.viewer__title{ font-weight:700; color:var(--text); }
+.viewer__count{ font-variant-numeric:tabular-nums; }
+.viewer__close{ margin-left:auto; background:none; border:0; font-size:27px; line-height:1; color:var(--text-dim); }
+.viewer__close:hover{ color:var(--text); }
+.viewer__nav{
+  position:absolute; top:50%; transform:translateY(-50%);
+  background:var(--surface-2); border:1px solid var(--border-strong);
+  width:42px; height:42px; border-radius:50%; font-size:21px; color:var(--text);
+}
+.viewer__nav:hover{ background:var(--surface-3); }
+.viewer__prev{ left:14px; }
+.viewer__next{ right:14px; }
+
+/* ===========================================================================
+   8. PANEL LATERAL — CHECKLISTS
+   =========================================================================== */
+.backdrop{
+  position:fixed; inset:0; z-index:50; background:rgba(0,0,0,.6);
+  opacity:0; pointer-events:none; transition:opacity .22s ease;
+}
+.backdrop[data-open="true"]{ opacity:1; pointer-events:auto; }
+
+.panel{
+  position:fixed; top:0; right:0; bottom:0; z-index:60; width:var(--panel-w); max-width:100%;
+  background:var(--surface-1); border-left:1px solid var(--border);
+  display:flex; flex-direction:column;
+  transform:translateX(100%); transition:transform .26s cubic-bezier(.4,0,.2,1);
+}
+.panel[data-open="true"]{ transform:none; }
+.panel__head{ padding:16px 18px 0; border-bottom:1px solid var(--border); }
+.panel__top{ display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+.panel__title{ margin:0; font-size:15px; font-weight:800; letter-spacing:.03em; }
+.panel__close{ margin-left:auto; background:none; border:0; font-size:25px; line-height:1; color:var(--text-dim); }
+.panel__close:hover{ color:var(--text); }
+
+/* Pestanas: una checklist independiente por coleccion. Nunca apiladas:
+   quien sigue una sola no deberia recorrer las demas para llegar a la suya. */
+.panel__tabs{ display:flex; gap:5px; overflow-x:auto; padding-bottom:11px; }
+.panel__tab{
+  background:var(--surface-3); border:1px solid var(--border); border-radius:99px;
+  padding:5px 11px; font-size:11.5px; font-weight:600; color:var(--text-dim);
+  white-space:nowrap; display:inline-flex; gap:6px; align-items:center;
+}
+.panel__tab-n{ font-size:10px; opacity:.8; font-variant-numeric:tabular-nums; }
+.panel__tab[aria-selected="true"]{ color:var(--text); }
+.panel__tab--egolgear[aria-selected="true"]{ background:var(--dx-soft); border-color:var(--dx); color:var(--dx); }
+.panel__tab--beast[aria-selected="true"]{ background:rgba(217,164,65,.15); border-color:var(--beast); color:var(--beast); }
+.panel__tab--omegahorn[aria-selected="true"]{ background:rgba(143,155,214,.15); border-color:var(--omegahorn); color:var(--omegahorn); }
+
+.panel__hint{ margin:0 0 10px; font-size:11px; color:var(--text-mute); line-height:1.45; }
+.panel__hint strong{ color:var(--text-dim); }
+.panel__filter{ display:flex; align-items:center; gap:7px; font-size:11.5px; color:var(--text-dim); padding-bottom:12px; cursor:pointer; }
+.panel__body{ flex:1; overflow-y:auto; padding:16px 18px 40px; }
+.panel__empty{ font-size:11.5px; color:var(--text-mute); text-align:center; padding:14px 0; }
+
+/* Bloque por linea (DX / SG) */
+.line{ margin-bottom:22px; }
+.line__head{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:6px; }
+.line__name{ font-size:11px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+.line__count{ font-size:11.5px; color:var(--text-dim); font-variant-numeric:tabular-nums; }
+.line__bar{ height:3px; border-radius:99px; background:var(--surface-3); overflow:hidden; margin-bottom:11px; }
+.line__fill{ height:100%; border-radius:99px; transition:width .3s ease; }
+.line--dx .line__name{ color:var(--dx); }        .line--dx .line__fill{ background:var(--dx); }
+.line--sg .line__name{ color:var(--sg); }        .line--sg .line__fill{ background:var(--sg); }
+
+/* Grupo por familia dentro de la linea */
+.group{ margin-bottom:13px; }
+.group__head{
+  display:flex; justify-content:space-between; gap:8px;
+  font-size:10px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--text-mute); padding:0 2px 5px;
+}
+.group__n{ font-variant-numeric:tabular-nums; }
+
+.item{
+  display:flex; align-items:flex-start; gap:9px;
+  padding:7px 9px; border-radius:var(--radius-s);
+  background:var(--surface-2); border:1px solid var(--border);
+  margin-bottom:4px; cursor:pointer; transition:all .14s ease;
+}
+.item:hover{ border-color:var(--border-strong); }
+.item__dot{
+  width:8px; height:8px; border-radius:50%; margin-top:5px; flex:none;
+  background:var(--surface-3); border:1px solid var(--border-strong);
+}
+.item--owned{ background:var(--owned-soft); border-color:rgba(55,214,122,.3); }
+.item--owned .item__dot{ background:var(--owned); border-color:var(--owned); }
+.item--partial .item__dot{ background:var(--reserved); border-color:var(--reserved); }
+.item__main{ flex:1; min-width:0; }
+.item__name{ display:block; font-size:12px; font-weight:600; }
+.item__meta{ display:block; font-size:10px; color:var(--text-mute); margin-top:1px; }
+
+/* Sub-marcas de variante */
+.item__vars{ display:flex; gap:4px; flex-wrap:wrap; margin-top:4px; }
+.var-chip{
+  font-size:9.5px; padding:1.5px 6px; border-radius:99px;
+  background:var(--surface-3); border:1px solid var(--border); color:var(--text-mute);
+}
+.var-chip--owned{ background:var(--owned-soft); border-color:rgba(55,214,122,.4); color:var(--owned); }
+
+/* ===========================================================================
+   9. RESPONSIVE
+   =========================================================================== */
+@media (max-width:1080px){
+  .header__inner{ gap:14px; padding:12px 18px; }
+  .mini-stats{ order:3; width:100%; flex:none; }
+  .main{ padding:22px 16px 70px; }
+  .month__inner{ padding:0 14px 18px; }
+  .grid{ grid-template-columns:repeat(auto-fill, minmax(178px,1fr)); gap:13px; }
+}
+@media (max-width:560px){
+  .brand__title{ font-size:17px; }
+  .month__drops{ display:none; }
+  .grid{ grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); }
+  .viewer{ padding:52px 12px; }
+  .viewer__nav{ width:36px; height:36px; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ==========================================================================
+     CABECERA
+     ========================================================================== -->
+<header class="header">
+  <div class="header__inner">
+    <div class="brand">
+      <h1 class="brand__title">KAKUSEI HUNTER <span>OMEGAHORN</span></h1>
+      <span class="brand__sub">Calendario de tandas &amp; checklist de EgolGear</span>
+    </div>
+
+    <!-- Progreso global; se rellena desde JS -->
+    <div class="mini-stats" id="miniStats"></div>
+
+    <button class="btn-panel" id="openPanel" aria-haspopup="dialog">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+      </svg>
+      Checklists
+    </button>
+  </div>
+</header>
+
+<!-- ==========================================================================
+     CATALOGO — se genera por completo desde JS
+     ========================================================================== -->
+<main class="main" id="catalog"></main>
+
+<!-- ==========================================================================
+     VISOR DE GALERIA — superposicion sobre el catalogo, no una segunda pagina
+     ========================================================================== -->
+<div class="viewer" id="viewer" data-open="false" role="dialog" aria-modal="true">
+  <div class="viewer__bar">
+    <span class="viewer__title"></span>
+    <span class="viewer__count"></span>
+    <button class="viewer__close" aria-label="Cerrar galeria">&times;</button>
+  </div>
+  <button class="viewer__nav viewer__prev" aria-label="Anterior">&#8249;</button>
+  <img class="viewer__img" alt="">
+  <button class="viewer__nav viewer__next" aria-label="Siguiente">&#8250;</button>
+</div>
+
+<!-- ==========================================================================
+     PANEL LATERAL: CHECKLISTS
+     Una pestana por coleccion. Nunca apiladas: hay quien sigue solo los
+     EgolGear y a ese pasar por los mechas para llegar a lo suyo no le sirve.
+     ========================================================================== -->
+<div class="backdrop" id="backdrop" data-open="false"></div>
+
+<aside class="panel" id="panel" data-open="false" role="dialog" aria-modal="true" aria-labelledby="panelTitle">
+  <div class="panel__head">
+    <div class="panel__top">
+      <h2 class="panel__title" id="panelTitle">Checklist</h2>
+      <button class="panel__close" id="closePanel" aria-label="Cerrar checklist">&times;</button>
+    </div>
+    <div class="panel__tabs" id="panelTabs" role="tablist"></div>
+    <p class="panel__hint" id="panelHint"></p>
+    <label class="panel__filter">
+      <input type="checkbox" id="hideOwned"> Ocultar los que ya tengo
+    </label>
+  </div>
+  <div class="panel__body" id="panelBody"></div>
+</aside>
+
+<script>
+/* ===========================================================================
+   BLOQUE 1 · CONFIGURACION
+   =========================================================================== */
+
+/* Orden fijo de subcategorias dentro de cada mes. Si una no tiene productos
+   ese mes, simplemente no se dibuja. */
+const CATEGORY_ORDER = [
+  "TAF", "SOFTVINYL",
+  /* Las tres SG van juntas: son todas Shokugan, seccion de golosinas. */
+  "SG MINIPLA", "SG YU-DO", "SG RANDOM BOX",
+  "DX SETS", "DX MECHAS", "DX EGOLGEAR SETS",
+  /* Premios de campana y exclusivos. Procedencia rara: pueden no tener precio,
+     pero todos tienen fecha. Una sola imagen, sin subcarpeta. */
+  "EGOLGEAR PROMOCIONALES"
+];
+
+/* Subcategorias cuyo contenido es sorpresa -> muestran "Ver posibles contenidos".
+   SG YU-DO NO entra: sus cajas llevan el numero impreso fuera
+   (この箱の中には ① が入っています), asi que se eligen. Tratar un contenido
+   garantizado como una loteria seria mentir en la tarjeta. */
+const RANDOM_BOX_CATEGORIES = ["SG RANDOM BOX"];
+
+/* Rotulo visible de cada mes. La clave "AAAA-MM" ordena cronologicamente sola;
+   si falta una, se genera desde la clave (ver monthLabel). */
+const MONTHS = {
+  "2026-07": "Julio 2026",
+  "2026-08": "Agosto 2026",
+  "2026-09": "Septiembre 2026",
+  "2026-10": "Octubre 2026"
+};
+
+const MONTH_NAMES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio",
+                     "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+const MONTH_ABBR  = ["ene","feb","mar","abr","may","jun",
+                     "jul","ago","sep","oct","nov","dic"];
+
+/* ---------------------------------------------------------------------------
+   LAS TRES COLECCIONES
+
+   Myth tenia una sola coleccion repartida (los Eggs); sus otras checklists
+   eran categorias donde un producto = una pieza, y bastaba contar productos.
+   Aqui no vale: el Horned Beast Enkaku sale en tres productos DX distintos y
+   el Omega Horn en otros tres. Son piezas repartidas igual que los EgolGear,
+   asi que las tres usan el mismo mecanismo y se distinguen por `collection`.
+
+   `principal` marca cual es el gimmick de la temporada: se lleva los dos
+   colores fuertes y se parte por linea en la cabecera. Las secundarias van en
+   tonos suaves y con una sola barra, para que con varias a la vez se siga
+   viendo cual importa.
+   --------------------------------------------------------------------------- */
+const COLECCIONES = {
+  "egolgear": {
+    label:"EgolGear", principal:true, slug:"egolgear",
+    hint:"Marca un producto como <strong>Obtenido</strong> y sus EgolGear se cuentan aqui. DX y SG van por separado porque cada linea tiene piezas exclusivas."
+  },
+  "horned-beast": {
+    label:"Horned Beasts", slug:"beast",
+    hint:"Los angeju en si. Coleccionable <strong>secundario</strong>, no el gimmick de la temporada. Se agrupan por criatura, no por como titule Bandai la caja."
+  },
+  "omegahorn": {
+    label:"Omegahorn", slug:"omegahorn",
+    hint:"El propio dispositivo y sus versiones. Coleccionable <strong>secundario</strong>. El Omega Analyzer no entra: es el aparato de transformacion, otro producto."
+  }
+};
+
+/* Familias dentro de una coleccion; el orden aqui es el orden en el panel. */
+const FAMILIAS = {
+  "egolgear":        "EgolGear",
+  "egolgear-kakuju": "EgolGear de Horned Beast",
+  "zetsu-egolgear":  "Zetsu EgolGear",
+  "beast":           "Horned Beasts",
+  "device":          "Dispositivos"
+};
+
+/* Lineas de coleccion. DX y SG van separadas a proposito: son canales
+   distintos y ninguna completa a la otra, asi que un "me faltan 3" que las
+   mezcle no significaria nada. */
+const LINES = { DX:"LINEA DX", SG:"LINEA SG" };
+
+/* Piezas que NO son coleccionables pero si determinan si un producto suelto
+   sigue haciendo falta. Solo lo lee tools/audit.py para verificar el arbol de
+   `reemplaza`. En Omegahorn esta casi vacio a proposito: los Horned Beasts y
+   el Omega Horn SI son coleccionables, asi que van en `contains` y la
+   auditoria deduce la cobertura sola comparando contenidos. */
+const COMPONENTES = {
+  "omega-analyzer": "Omega Analyzer (aparato de transformacion)"
+};
+
+/* Categorias que ademas de tarjetas tendrian checklist propia de producto.
+   Vacio hoy: TAF y SOFTVINYL tienen un producto cada una y una checklist de
+   un elemento no aporta nada. Cuando crezcan, se anaden aqui. */
+const PRODUCT_CHECKLISTS = [];
+
+/* Estados de producto. Solo "owned" alimenta las checklists. */
+const STATES = { pending:"Pendiente", reserved:"Reservado", owned:"Obtenido" };
+
+/* Moneda para formatear precios. */
+const CURRENCY = { symbol:"¥", locale:"ja-JP" };
+
+
+/* ===========================================================================
+   BLOQUE 2 · CATALOGO MAESTRO DE PIEZAS  (fuente de verdad de las checklists)
+   ---------------------------------------------------------------------------
+   Cada entrada:
+     id         -> identificador unico, usado en `contains` de los productos
+     name       -> nombre visible
+     collection -> clave de COLECCIONES
+     type       -> clave de FAMILIAS; agrupa dentro del panel
+     line       -> "DX" o "SG". Contadores separados.
+     meaning    -> OPCIONAL. Traduccion del nombre, como pista en el panel.
+     variants   -> OPCIONAL. Versiones de la MISMA pieza dentro de la misma
+                   linea. La pieza cuenta UNA vez; las variantes son sub-marcas.
+
+   NOMENCLATURA. Las grafias salen de la caja, no de la web: la traduccion
+   automatica de Bandai llama "Squid Quest Gorgia" al Ikaku EgolGear y "Rhino"
+   a Saikaku. Reglas ya fijadas:
+     · Zetsu- lleva guion, como en el titulo oficial DX MEGA FLAME HORN
+       ZETSU-ENKAKU. Son prefijo + bicho base y sin guion no se ve la costura.
+     · Vocales largas segun la lista de contenidos, que las conserva:
+       Goukaku, Kyoukaku, Youkaku, Juukaku, Moukaku.
+     · Hen'ishu con apostrofo: ヘンイシュ es 変異種; sin el se leeria he-ni-shu.
+
+   Una version SG nunca es variante de una DX: va como entrada propia.
+   =========================================================================== */
+const PIEZAS_CATALOG = [
+
+  /* ======================= EGOLGEAR · LINEA DX ======================= */
+
+  /* ---------- Los que se venden en pares, en los DX EGOLGEAR SETS ---------- */
+  { id:"eg-denkaku",  name:"Denkaku EgolGear",  collection:"egolgear", type:"egolgear", line:"DX", meaning:"Electric Horn" },
+  { id:"eg-sakaku",   name:"Sakaku EgolGear",   collection:"egolgear", type:"egolgear", line:"DX", meaning:"Chain Horn" },
+  { id:"eg-dokukaku", name:"Dokukaku EgolGear", collection:"egolgear", type:"egolgear", line:"DX", meaning:"Poison Horn" },
+  { id:"eg-moukaku",  name:"Moukaku EgolGear",  collection:"egolgear", type:"egolgear", line:"DX", meaning:"Fierce Horn" },
+  { id:"eg-renkaku",  name:"Renkaku EgolGear",  collection:"egolgear", type:"egolgear", line:"DX", meaning:"Sickle Horn" },
+  { id:"eg-juukaku",  name:"Juukaku EgolGear",  collection:"egolgear", type:"egolgear", line:"DX", meaning:"Heavy Horn" },
+  { id:"eg-hyokaku",  name:"Hyokaku EgolGear",  collection:"egolgear", type:"egolgear", line:"DX", meaning:"Ice Horn" },
+  { id:"eg-nekkaku",  name:"Nekkaku EgolGear",  collection:"egolgear", type:"egolgear", line:"DX", meaning:"Heat Horn" },
+  { id:"eg-ikaku",    name:"Ikaku EgolGear",    collection:"egolgear", type:"egolgear", line:"DX", meaning:"Intimidating Horn" },
+  { id:"eg-funkaku",  name:"Funkaku EgolGear",  collection:"egolgear", type:"egolgear", line:"DX", meaning:"Powdered Horn" },
+  { id:"eg-kyoukaku", name:"Kyoukaku EgolGear", collection:"egolgear", type:"egolgear", line:"DX", meaning:"Narrow Horn" },
+  { id:"eg-youkaku",  name:"Youkaku EgolGear",  collection:"egolgear", type:"egolgear", line:"DX", meaning:"Melting Horn" },
+
+  /* ---------- Los que solo vienen dentro de un dispositivo ---------- */
+  /* Enkaku no viene con su mecha: el DX MEGA FLAME HORN ENKAKU suelto es el
+     unico que no trae gear. Este llega con el Omega Horn. */
+  { id:"eg-enkaku",   name:"Enkaku EgolGear",   collection:"egolgear", type:"egolgear", line:"DX" },
+  { id:"eg-bikaku",   name:"Bikaku EgolGear",   collection:"egolgear", type:"egolgear", line:"DX", meaning:"Beautiful Horn" },
+  { id:"eg-gaikaku",  name:"Gaikaku EgolGear",  collection:"egolgear", type:"egolgear", line:"DX", meaning:"Armor Horn" },
+  { id:"eg-rinkaku",  name:"Rinkaku EgolGear",  collection:"egolgear", type:"egolgear", line:"DX", meaning:"Forest Horn" },
+  { id:"eg-gunkaku",  name:"Gunkaku EgolGear",  collection:"egolgear", type:"egolgear", line:"DX", meaning:"Group Horn" },
+
+  /* Premio de la PROJECT R.E.D. Choco Campaign, 2.000 unidades por sorteo.
+     En la fuente japonesa la pieza es un エモルギア (Emolgear), el
+     coleccionable de Gavan Infinity, no un エゴルギア. Se cataloga como
+     EgolGear por practicidad: encaja en el formato y se usa en el mismo
+     juguete. Escrito aqui para que nadie lo "corrija" mas adelante. */
+  { id:"eg-promo-special", name:"EgolGear Limited Special Color", collection:"egolgear",
+    type:"egolgear", line:"DX", meaning:"dorado · premio de campana" },
+
+  /* ---------- Los que vienen dentro de un Horned Beast ---------- */
+  { id:"eg-zankaku",  name:"Zankaku EgolGear",  collection:"egolgear", type:"egolgear-kakuju", line:"DX" },
+  { id:"eg-saikaku",  name:"Saikaku EgolGear",  collection:"egolgear", type:"egolgear-kakuju", line:"DX" },
+  { id:"eg-hikaku",   name:"Hikaku EgolGear",   collection:"egolgear", type:"egolgear-kakuju", line:"DX" },
+  { id:"eg-goukaku",  name:"Goukaku EgolGear",  collection:"egolgear", type:"egolgear-kakuju", line:"DX" },
+
+  /* ---------- Las versiones absolutas, en blanco y oro ---------- */
+  /* Zetsu-Soukaku y Zetsu-Goukaku son piezas DISTINTAS: comprobado con la
+     tabla oficial de セット内容, que marca la primera con セット品限定, y
+     comparando el arte interior de las dos. Los dos bichos base existen. */
+  { id:"eg-zetsu-enkaku",  name:"Zetsu-Enkaku EgolGear",  collection:"egolgear", type:"zetsu-egolgear", line:"DX" },
+  { id:"eg-zetsu-soukaku", name:"Zetsu-Soukaku EgolGear", collection:"egolgear", type:"zetsu-egolgear", line:"DX", meaning:"exclusivo del EGOLGEAR SET" },
+  { id:"eg-zetsu-goukaku", name:"Zetsu-Goukaku EgolGear", collection:"egolgear", type:"zetsu-egolgear", line:"DX", meaning:"Absolute Hard Horn" },
+
+  /* ======================= EGOLGEAR · LINEA SG ======================= */
+  /* Los ocho del SG EGOLGEAR RANDOM BOX 01. Cuatro repiten nombre de bicho
+     con la linea DX, pero son moldes y canales distintos: cuentan aparte.
+     Los dos Hen'ishu van como entradas propias, no como variantes de Denkaku
+     y Hokaku: son ocho SKU de una caja sorpresa, y si fueran variantes sacar
+     el normal marcaria la linea completa mientras te falta un gear fisico. */
+  { id:"sg-eg-enkaku",          name:"Enkaku EgolGear",          collection:"egolgear", type:"egolgear", line:"SG" },
+  { id:"sg-eg-denkaku",         name:"Denkaku EgolGear",         collection:"egolgear", type:"egolgear", line:"SG" },
+  { id:"sg-eg-ninkaku",         name:"Ninkaku EgolGear",         collection:"egolgear", type:"egolgear", line:"SG" },
+  { id:"sg-eg-roukaku",         name:"Roukaku EgolGear",         collection:"egolgear", type:"egolgear", line:"SG" },
+  { id:"sg-eg-soukaku",         name:"Soukaku EgolGear",         collection:"egolgear", type:"egolgear", line:"SG" },
+  { id:"sg-eg-hokaku",          name:"Hokaku EgolGear",          collection:"egolgear", type:"egolgear", line:"SG" },
+  { id:"sg-eg-denkaku-henishu", name:"Denkaku Hen'ishu EgolGear", collection:"egolgear", type:"egolgear", line:"SG", meaning:"変異種 · especie mutante" },
+  { id:"sg-eg-hokaku-henishu",  name:"Hokaku Hen'ishu EgolGear",  collection:"egolgear", type:"egolgear", line:"SG", meaning:"変異種 · especie mutante" },
+
+  /* ======================= HORNED BEASTS (secundario) ======================= */
+  /* Los bichos en si. Se titulan "Horned Beast" en las fichas de ahora, pero
+     el prefijo puede no acompanar a variantes futuras: aqui se agrupa por
+     criatura, no por como titule Bandai la caja.
+     El Enkaku de soft vinyl NO entra: es una figura de vinilo de otra escala
+     y otra linea, no el juguete DX ni el kit SG. */
+  { id:"hb-enkaku",       name:"Enkaku",       collection:"horned-beast", type:"beast", line:"DX" },
+  { id:"hb-zankaku",      name:"Zankaku",      collection:"horned-beast", type:"beast", line:"DX" },
+  { id:"hb-saikaku",      name:"Saikaku",      collection:"horned-beast", type:"beast", line:"DX" },
+  { id:"hb-hikaku",       name:"Hikaku",       collection:"horned-beast", type:"beast", line:"DX" },
+  { id:"hb-goukaku",      name:"Goukaku",      collection:"horned-beast", type:"beast", line:"DX" },
+  { id:"hb-zetsu-enkaku", name:"Zetsu-Enkaku", collection:"horned-beast", type:"beast", line:"DX" },
+  /* El de Minipla es un model kit de tres cajas, no el DX de 350 mm. */
+  { id:"hb-sg-enkaku",    name:"Enkaku",       collection:"horned-beast", type:"beast", line:"SG", meaning:"model kit, cajas 1+2+3" },
+
+  /* ======================= OMEGAHORN (secundario) ======================= */
+  { id:"oh-omegahorn", name:"Omega Horn",          collection:"omegahorn", type:"device", line:"DX" },
+  { id:"oh-absolute",  name:"Omega Horn Absolute", collection:"omegahorn", type:"device", line:"DX" },
+  { id:"oh-replica",   name:"Omega Horn Replica",  collection:"omegahorn", type:"device", line:"DX" },
+  { id:"oh-sg",        name:"Omega Horn",          collection:"omegahorn", type:"device", line:"SG", meaning:"model kit, cajas 4+5" }
+];
+
+
+/* ===========================================================================
+   BLOQUE 3 · PRODUCTOS
+   ---------------------------------------------------------------------------
+   Fuentes: las capturas de FICHA/, cotejadas contra las paginas oficiales de
+   Bandai. Las traducciones automaticas de la web NO valen para nombres: llaman
+   "Squid Quest Gorgia" al Ikaku EgolGear y "Rhino" a Saikaku. Manda la caja.
+
+   Cada producto:
+     id        -> unico, y es la clave con la que se guarda tu estado.
+                  Convencion <linea>-<producto> en minusculas.
+     title     -> nombre visible, sin el sufijo de contenidos: eso ya vive
+                  dentro de contains.
+     category  -> una de CATEGORY_ORDER
+     date      -> "AAAA-MM-DD". El mes del acordeon se deduce de aqui.
+     dateType  -> "release" | "preorder". Hoy todos son release: ninguna ficha
+                  indica preventa exclusiva online.
+     price     -> yenes con impuestos, o null si no hay
+     priceLabel-> OPCIONAL. Matiza o sustituye al precio.
+     alsoIn    -> OPCIONAL. Otras subcategorias donde tambien se lista. Sigue
+                  siendo UN producto: un estado y cuenta una vez en el mes.
+     reemplaza -> OPCIONAL. Productos que dejan de hacer falta si tienes este.
+                  Se declara en el que absorbe, no en el absorbido: asi sacar
+                  un set nuevo es tocar un solo sitio. La cobertura es
+                  transitiva, basta declarar lo que se absorbe directamente.
+     componentes -> OPCIONAL. Piezas que NO son coleccionables y trae la caja.
+                  La pagina no lo usa: sirve para que tools/audit.py deduzca
+                  que set absorbe a cual comparando contenidos.
+     img       -> portada, ruta relativa. PACKAGE si existe, si no 01.
+     gallery   -> todas las fotos, en orden. Se piden solo al abrir el visor.
+     contains  -> piezas incluidas. Formato "id" o "id@variante". Marcar el
+                  producto como Obtenido marca TODAS.
+   =========================================================================== */
+const PRODUCTS = [
+
+  /* =================== JULIO 2026 =================== */
+  { id:"dx-omegahorn", title:"DX OMEGAHORN", category:"DX SETS",
+    date:"2026-07-25", dateType:"release", price:4730,
+    img:"DX SETS/DX OMEGAHORN/PACKAGE.jpg",
+    gallery:["DX SETS/DX OMEGAHORN/PACKAGE.jpg",
+             "DX SETS/DX OMEGAHORN/01.jpg",
+             "DX SETS/DX OMEGAHORN/02.jpg",
+             "DX SETS/DX OMEGAHORN/03.jpg",
+             "DX SETS/DX OMEGAHORN/04.jpg"],
+    contains:["oh-omegahorn","eg-enkaku"] },
+  { id:"dx-omegaanalyzer", title:"DX OMEGAANALYZER", category:"DX SETS",
+    date:"2026-07-25", dateType:"release", price:4620,
+    componentes:["omega-analyzer"],
+    img:"DX SETS/DX OMEGAANALYZER/PACKAGE.jpg",
+    gallery:["DX SETS/DX OMEGAANALYZER/PACKAGE.jpg",
+             "DX SETS/DX OMEGAANALYZER/01.jpg",
+             "DX SETS/DX OMEGAANALYZER/02.jpg"],
+    contains:[] },
+  { id:"dx-enkaku-set", title:"DX MEGA FLAME HORN ENKAKU ＆ OMEGAHORN SET", category:"DX SETS",
+    date:"2026-07-25", dateType:"release", price:8580,
+    reemplaza:["dx-mecha-enkaku","dx-omegahorn"],
+    img:"DX SETS/DX MEGA FLAME HORN ENKAKU＆OMEGAHORN SET/PACKAGE.jpg",
+    gallery:["DX SETS/DX MEGA FLAME HORN ENKAKU＆OMEGAHORN SET/PACKAGE.jpg",
+             "DX SETS/DX MEGA FLAME HORN ENKAKU＆OMEGAHORN SET/01.jpg",
+             "DX SETS/DX MEGA FLAME HORN ENKAKU＆OMEGAHORN SET/02.jpg",
+             "DX SETS/DX MEGA FLAME HORN ENKAKU＆OMEGAHORN SET/03.jpg",
+             "DX SETS/DX MEGA FLAME HORN ENKAKU＆OMEGAHORN SET/04.jpg",
+             "DX SETS/DX MEGA FLAME HORN ENKAKU＆OMEGAHORN SET/05.jpg"],
+    contains:["hb-enkaku","oh-omegahorn","eg-enkaku"] },
+  { id:"dx-enkaku-egolgear-set", title:"DX MEGA FLAME HORN ENKAKU ＆ OMEGAHORN EGOLGEAR SET", category:"DX SETS",
+    date:"2026-07-25", dateType:"release", price:11330,
+    reemplaza:["dx-enkaku-set"],
+    img:"DX SETS/DX MEGA FLAME HORN ENKAKU＆OMEGAHORN EGOLGEAR SET/PACKAGE.jpg",
+    gallery:["DX SETS/DX MEGA FLAME HORN ENKAKU＆OMEGAHORN EGOLGEAR SET/PACKAGE.jpg",
+             "DX SETS/DX MEGA FLAME HORN ENKAKU＆OMEGAHORN EGOLGEAR SET/01.jpg",
+             "DX SETS/DX MEGA FLAME HORN ENKAKU＆OMEGAHORN EGOLGEAR SET/02.jpg",
+             "DX SETS/DX MEGA FLAME HORN ENKAKU＆OMEGAHORN EGOLGEAR SET/03.jpg",
+             "DX SETS/DX MEGA FLAME HORN ENKAKU＆OMEGAHORN EGOLGEAR SET/04.jpg",
+             "DX SETS/DX MEGA FLAME HORN ENKAKU＆OMEGAHORN EGOLGEAR SET/05.jpg",
+             "DX SETS/DX MEGA FLAME HORN ENKAKU＆OMEGAHORN EGOLGEAR SET/06.jpg",
+             "DX SETS/DX MEGA FLAME HORN ENKAKU＆OMEGAHORN EGOLGEAR SET/07.jpg"],
+    contains:["hb-enkaku",
+              "oh-omegahorn",
+              "eg-enkaku",
+              "eg-sakaku",
+              "eg-dokukaku",
+              "eg-renkaku",
+              "eg-nekkaku",
+              "eg-zetsu-soukaku"] },
+  { id:"dx-mecha-enkaku", title:"DX MEGA FLAME HORN ENKAKU", category:"DX MECHAS",
+    date:"2026-07-25", dateType:"release", price:4730,
+    img:"DX MECHAS/DX MEGA FLAME HORN ENKAKU/PACKAGE.jpg",
+    gallery:["DX MECHAS/DX MEGA FLAME HORN ENKAKU/PACKAGE.jpg",
+             "DX MECHAS/DX MEGA FLAME HORN ENKAKU/01.jpg",
+             "DX MECHAS/DX MEGA FLAME HORN ENKAKU/02.jpg",
+             "DX MECHAS/DX MEGA FLAME HORN ENKAKU/03.jpg",
+             "DX MECHAS/DX MEGA FLAME HORN ENKAKU/04.jpg"],
+    contains:["hb-enkaku"] },
+  { id:"dx-mecha-zankaku", title:"DX MEGA SLASH HORN ZANKAKU", category:"DX MECHAS",
+    date:"2026-07-25", dateType:"release", price:4180,
+    img:"DX MECHAS/DX MEGA SLASH HORN ZANKAKU/01.jpg",
+    gallery:["DX MECHAS/DX MEGA SLASH HORN ZANKAKU/01.jpg",
+             "DX MECHAS/DX MEGA SLASH HORN ZANKAKU/02.jpg",
+             "DX MECHAS/DX MEGA SLASH HORN ZANKAKU/03.jpg",
+             "DX MECHAS/DX MEGA SLASH HORN ZANKAKU/04.jpg"],
+    contains:["hb-zankaku","eg-zankaku"] },
+  { id:"dx-mecha-goukaku", title:"DX MEGA BRAVE HORN GOKAKU", category:"DX MECHAS",
+    date:"2026-07-25", dateType:"release", price:3850,
+    img:"DX MECHAS/DX MEGA BRAVE HORN GOKAKU/01.jpg",
+    gallery:["DX MECHAS/DX MEGA BRAVE HORN GOKAKU/01.jpg",
+             "DX MECHAS/DX MEGA BRAVE HORN GOKAKU/02.jpg",
+             "DX MECHAS/DX MEGA BRAVE HORN GOKAKU/03.jpg",
+             "DX MECHAS/DX MEGA BRAVE HORN GOKAKU/04.jpg"],
+    contains:["hb-goukaku","eg-goukaku"] },
+  { id:"dx-egolgear-set-01", title:"DX EGOLGEAR SET 01", category:"DX EGOLGEAR SETS",
+    date:"2026-07-25", dateType:"release", price:1100,
+    img:"DX EGOLGEAR SETS/DX EGOLGEAR SET 01/01.jpg",
+    gallery:["DX EGOLGEAR SETS/DX EGOLGEAR SET 01/01.jpg",
+             "DX EGOLGEAR SETS/DX EGOLGEAR SET 01/02.jpg",
+             "DX EGOLGEAR SETS/DX EGOLGEAR SET 01/03.jpg",
+             "DX EGOLGEAR SETS/DX EGOLGEAR SET 01/04.jpg",
+             "DX EGOLGEAR SETS/DX EGOLGEAR SET 01/05.jpg"],
+    contains:["eg-denkaku","eg-sakaku"] },
+  { id:"dx-egolgear-set-02", title:"DX EGOLGEAR SET 02", category:"DX EGOLGEAR SETS",
+    date:"2026-07-25", dateType:"release", price:1100,
+    img:"DX EGOLGEAR SETS/DX EGOLGEAR SET 02/01.jpg",
+    gallery:["DX EGOLGEAR SETS/DX EGOLGEAR SET 02/01.jpg",
+             "DX EGOLGEAR SETS/DX EGOLGEAR SET 02/02.jpg",
+             "DX EGOLGEAR SETS/DX EGOLGEAR SET 02/03.jpg",
+             "DX EGOLGEAR SETS/DX EGOLGEAR SET 02/04.jpg",
+             "DX EGOLGEAR SETS/DX EGOLGEAR SET 02/05.jpg"],
+    contains:["eg-dokukaku","eg-moukaku"] },
+  { id:"sv-enkaku", title:"PROJECT RED SOFT VINYL SERIES: HORNED BEAST ENKAKU", category:"SOFTVINYL",
+    date:"2026-07-25", dateType:"release", price:990,
+    img:"SOFTVINYL/SOFT VINYL HORNED BEAST ENKAKU/01.jpg",
+    gallery:["SOFTVINYL/SOFT VINYL HORNED BEAST ENKAKU/01.jpg",
+             "SOFTVINYL/SOFT VINYL HORNED BEAST ENKAKU/02.jpg",
+             "SOFTVINYL/SOFT VINYL HORNED BEAST ENKAKU/03.jpg"],
+    contains:[] },
+  { id:"taf-captain", title:"TOKUSATSU ACTION FIGURE CAPTAIN OMEGAHORN", category:"TAF",
+    date:"2026-07-25", dateType:"release", price:4840,
+    img:"TAF/TAF CAPTAIN OMEGAHORN/PACKAGE.jpg",
+    gallery:["TAF/TAF CAPTAIN OMEGAHORN/PACKAGE.jpg",
+             "TAF/TAF CAPTAIN OMEGAHORN/01.jpg"],
+    contains:[] },
+
+  /* =================== JULIO 2026 · SHOKUGAN =================== */
+  { id:"sg-random-box-01", title:"SG EGOLGEAR RANDOM BOX 01", category:"SG RANDOM BOX",
+    date:"2026-07-27", dateType:"release", price:550,
+    img:"SG RANDOM BOX/SG EGOLGEAR RANDOM BOX 01/PACKAGE.jpg",
+    gallery:["SG RANDOM BOX/SG EGOLGEAR RANDOM BOX 01/PACKAGE.jpg",
+             "SG RANDOM BOX/SG EGOLGEAR RANDOM BOX 01/01.jpg"],
+    contains:["sg-eg-enkaku",
+              "sg-eg-denkaku",
+              "sg-eg-ninkaku",
+              "sg-eg-roukaku",
+              "sg-eg-soukaku",
+              "sg-eg-hokaku",
+              "sg-eg-denkaku-henishu",
+              "sg-eg-hokaku-henishu"] },
+
+  /* =================== AGOSTO 2026 =================== */
+  { id:"dx-egolgear-set-03", title:"DX EGOLGEAR SET 03", category:"DX EGOLGEAR SETS",
+    date:"2026-08-01", dateType:"release", price:1100,
+    img:"DX EGOLGEAR SETS/DX EGOLGEAR SET 03/01.jpg",
+    gallery:["DX EGOLGEAR SETS/DX EGOLGEAR SET 03/01.jpg",
+             "DX EGOLGEAR SETS/DX EGOLGEAR SET 03/02.jpg",
+             "DX EGOLGEAR SETS/DX EGOLGEAR SET 03/03.jpg",
+             "DX EGOLGEAR SETS/DX EGOLGEAR SET 03/04.jpg",
+             "DX EGOLGEAR SETS/DX EGOLGEAR SET 03/05.jpg"],
+    contains:["eg-renkaku","eg-juukaku"] },
+  { id:"dx-egolgear-set-04", title:"DX EGOLGEAR SET 04", category:"DX EGOLGEAR SETS",
+    date:"2026-08-01", dateType:"release", price:1100,
+    img:"DX EGOLGEAR SETS/DX EGOLGEAR SET 04/01.jpg",
+    gallery:["DX EGOLGEAR SETS/DX EGOLGEAR SET 04/01.jpg",
+             "DX EGOLGEAR SETS/DX EGOLGEAR SET 04/02.jpg",
+             "DX EGOLGEAR SETS/DX EGOLGEAR SET 04/03.jpg",
+             "DX EGOLGEAR SETS/DX EGOLGEAR SET 04/04.jpg",
+             "DX EGOLGEAR SETS/DX EGOLGEAR SET 04/05.jpg"],
+    contains:["eg-hyokaku","eg-nekkaku"] },
+  { id:"dx-mecha-saikaku", title:"DX MEGA CRUSH HORN SAIKAKU", category:"DX MECHAS",
+    date:"2026-08-29", dateType:"release", price:4180,
+    img:"DX MECHAS/DX MEGA CRUSH HORN SAIKAKU/01.jpg",
+    gallery:["DX MECHAS/DX MEGA CRUSH HORN SAIKAKU/01.jpg",
+             "DX MECHAS/DX MEGA CRUSH HORN SAIKAKU/02.jpg",
+             "DX MECHAS/DX MEGA CRUSH HORN SAIKAKU/03.jpg",
+             "DX MECHAS/DX MEGA CRUSH HORN SAIKAKU/04.jpg"],
+    contains:["hb-saikaku","eg-saikaku"] },
+  { id:"dx-mecha-hikaku", title:"DX MEGA WING HORN HIKAKU", category:"DX MECHAS",
+    date:"2026-08-29", dateType:"release", price:4950,
+    img:"DX MECHAS/DX MEGA WING HORN HIKAKU/01.jpg",
+    gallery:["DX MECHAS/DX MEGA WING HORN HIKAKU/01.jpg",
+             "DX MECHAS/DX MEGA WING HORN HIKAKU/02.jpg",
+             "DX MECHAS/DX MEGA WING HORN HIKAKU/03.jpg",
+             "DX MECHAS/DX MEGA WING HORN HIKAKU/04.jpg"],
+    contains:["hb-hikaku","eg-hikaku"] },
+
+  /* =================== SEPTIEMBRE 2026 =================== */
+  { id:"sg-yudo-enkaku", title:"YU-DO KAKUSEIHUNTER OMEGAHORN 01 ENKAKU", category:"SG YU-DO",
+    date:"2026-09-01", dateType:"release", price:1254, priceLabel:"3 cajas x 418",
+    img:"SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 ENKAKU/01.jpg",
+    gallery:["SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 ENKAKU/01.jpg",
+             "SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 ENKAKU/02.jpg",
+             "SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 ENKAKU/03.jpg",
+             "SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 ENKAKU/04.jpg"],
+    contains:["hb-sg-enkaku"] },
+  { id:"sg-yudo-omegahorn", title:"YU-DO KAKUSEIHUNTER OMEGAHORN 01 OMEGAHORN", category:"SG YU-DO",
+    date:"2026-09-01", dateType:"release", price:836, priceLabel:"2 cajas x 418",
+    img:"SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 OMEGAHORN/01.jpg",
+    gallery:["SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 OMEGAHORN/01.jpg",
+             "SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 OMEGAHORN/02.jpg",
+             "SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 OMEGAHORN/03.jpg"],
+    contains:["oh-sg","sg-eg-enkaku"] },
+  { id:"sg-yudo-captain", title:"YU-DO KAKUSEIHUNTER OMEGAHORN 01 CAPTAIN OMEGAHORN", category:"SG YU-DO",
+    date:"2026-09-01", dateType:"release", price:418,
+    img:"SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 CAPTAIN OMEGAHORN/01.jpg",
+    gallery:["SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 CAPTAIN OMEGAHORN/01.jpg",
+             "SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 CAPTAIN OMEGAHORN/02.jpg"],
+    contains:[] },
+  { id:"sg-minipla-set", title:"MINIPLA KAKUSEIHUNTER OMEGAHORN 01 SET", category:"SG MINIPLA",
+    date:"2026-09-01", dateType:"release", price:2508,
+    reemplaza:["sg-yudo-enkaku","sg-yudo-omegahorn","sg-yudo-captain"],
+    img:"SG MINIPLA/MINIPLA KAKUSEIHUNTER OMEGAHORN 01 SET/PACKAGE.jpg",
+    gallery:["SG MINIPLA/MINIPLA KAKUSEIHUNTER OMEGAHORN 01 SET/PACKAGE.jpg",
+             "SG MINIPLA/MINIPLA KAKUSEIHUNTER OMEGAHORN 01 SET/01.jpg",
+             "SG MINIPLA/MINIPLA KAKUSEIHUNTER OMEGAHORN 01 SET/02.jpg",
+             "SG MINIPLA/MINIPLA KAKUSEIHUNTER OMEGAHORN 01 SET/03.jpg",
+             "SG MINIPLA/MINIPLA KAKUSEIHUNTER OMEGAHORN 01 SET/04.jpg",
+             "SG MINIPLA/MINIPLA KAKUSEIHUNTER OMEGAHORN 01 SET/05.jpg",
+             "SG MINIPLA/MINIPLA KAKUSEIHUNTER OMEGAHORN 01 SET/06.jpg",
+             "SG MINIPLA/MINIPLA KAKUSEIHUNTER OMEGAHORN 01 SET/07.jpg",
+             "SG MINIPLA/MINIPLA KAKUSEIHUNTER OMEGAHORN 01 SET/08.jpg"],
+    contains:["hb-sg-enkaku","oh-sg","sg-eg-enkaku"] },
+  { id:"promo-special-color", title:"PROJECT RED CHOCO CAMPAIGN — EGOLGEAR LIMITED SPECIAL COLOR", category:"EGOLGEAR PROMOCIONALES",
+    date:"2026-09-01", dateType:"release", price:null, priceLabel:"Premio · 2.000 unidades",
+    img:"EGOLGEAR PROMOCIONALES/PROJECT RED CHOCO CAMPAIGN-EgolGear Limited Special Color.png",
+    gallery:["EGOLGEAR PROMOCIONALES/PROJECT RED CHOCO CAMPAIGN-EgolGear Limited Special Color.png"],
+    contains:["eg-promo-special"] },
+  { id:"dx-zetsu-enkaku-set", title:"DX MEGA FLAME HORN ZETSU-ENKAKU ＆ OMEGAHORN ZETSU SET", category:"DX SETS",
+    date:"2026-09-05", dateType:"release", price:9900,
+    alsoIn:["DX MECHAS"],
+    img:"DX SETS/DX MEGA FLAME HORN ZETSU-ENKAKU ＆ OMEGAHORN ZETSU SET/01.jpg",
+    gallery:["DX SETS/DX MEGA FLAME HORN ZETSU-ENKAKU ＆ OMEGAHORN ZETSU SET/01.jpg"],
+    contains:["hb-zetsu-enkaku","oh-absolute","eg-zetsu-enkaku"] },
+  { id:"dx-egolgear-set-05", title:"DX EGOLGEAR SET 05", category:"DX EGOLGEAR SETS",
+    date:"2026-09-05", dateType:"release", price:1100,
+    img:"DX EGOLGEAR SETS/DX EGOLGEAR SET 05/01.jpg",
+    gallery:["DX EGOLGEAR SETS/DX EGOLGEAR SET 05/01.jpg",
+             "DX EGOLGEAR SETS/DX EGOLGEAR SET 05/02.jpg",
+             "DX EGOLGEAR SETS/DX EGOLGEAR SET 05/03.jpg",
+             "DX EGOLGEAR SETS/DX EGOLGEAR SET 05/04.jpg",
+             "DX EGOLGEAR SETS/DX EGOLGEAR SET 05/05.jpg"],
+    contains:["eg-ikaku","eg-funkaku"] },
+  { id:"dx-egolgear-set-06", title:"DX EGOLGEAR SET 06", category:"DX EGOLGEAR SETS",
+    date:"2026-09-05", dateType:"release", price:1100,
+    img:"DX EGOLGEAR SETS/DX EGOLGEAR SET 06/01.jpg",
+    gallery:["DX EGOLGEAR SETS/DX EGOLGEAR SET 06/01.jpg",
+             "DX EGOLGEAR SETS/DX EGOLGEAR SET 06/02.jpg",
+             "DX EGOLGEAR SETS/DX EGOLGEAR SET 06/03.jpg",
+             "DX EGOLGEAR SETS/DX EGOLGEAR SET 06/04.jpg",
+             "DX EGOLGEAR SETS/DX EGOLGEAR SET 06/05.jpg"],
+    contains:["eg-kyoukaku","eg-youkaku"] },
+
+  /* =================== OCTUBRE 2026 =================== */
+  { id:"dx-replica-set", title:"OMEGAHORN REPLICA ＆ EGOLGEAR SET", category:"DX SETS",
+    date:"2026-10-03", dateType:"release", price:7150,
+    img:"DX SETS/OMEGAHORN REPLICA ＆ EGOLGEAR SET/01.jpg",
+    gallery:["DX SETS/OMEGAHORN REPLICA ＆ EGOLGEAR SET/01.jpg"],
+    contains:["oh-replica",
+              "eg-zetsu-goukaku",
+              "eg-bikaku",
+              "eg-gaikaku",
+              "eg-rinkaku",
+              "eg-gunkaku"] },
+];
+
+/* El mes del acordeon se deriva de la fecha. `date` es la unica fuente de
+   verdad temporal: guardar mes y fecha por separado los deja desincronizarse. */
+PRODUCTS.forEach(p => { p.month = p.date.slice(0, 7); });
+
+
+/* ===========================================================================
+   BLOQUE 4 · ESTADO PERSISTENTE
+   Se guarda solo lo minimo: estado por producto y preferencias de interfaz.
+   Las checklists NUNCA se guardan: se derivan de los productos en cada render.
+   Esa es la razon de que marcar un set actualice la lista de piezas sola y de
+   que nunca puedan desincronizarse.
+   =========================================================================== */
+const STORAGE_KEY = "omegahorn-catalog-v1";   /* propia de la serie: si dos
+   catalogos comparten dominio y clave, se pisan lo que tengas marcado. */
+
+let state = {
+  products: {},                                          // id -> pending|reserved|owned
+  ui: { openMonths: [], hideOwned:false, tab:"egolgear" }
+};
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    const saved = JSON.parse(raw);
+    state.ui = Object.assign(state.ui, saved.ui || {});
+
+    /* Descarta lo guardado bajo ids que ya no existen. Sin esto, renombrar un
+       producto deja su marca ahi para siempre, invisible y engordando. */
+    const vivos = new Set(PRODUCTS.map(p => p.id));
+    state.products = Object.fromEntries(
+      Object.entries(saved.products || {}).filter(([id]) => vivos.has(id))
+    );
+  }catch(e){
+    console.warn("No se pudo leer el estado guardado; empezamos limpio.", e);
+  }
+}
+
+function saveState(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  catch(e){ console.warn("No se pudo guardar el estado.", e); }
+}
+
+const getProductState = id => state.products[id] || "pending";
+
+
+/* ===========================================================================
+   BLOQUE 5 · INDICES Y DERIVADOS
+   =========================================================================== */
+
+/* Una referencia puede venir como "eg-denkaku" o "eg-denkaku@special".
+   Se normaliza siempre a "id@variante" para poder comparar sin ambiguedad. */
+const normalizeRef = ref => ref.includes("@") ? ref : ref + "@std";
+function splitRef(ref){
+  const [id, variant] = normalizeRef(ref).split("@");
+  return { id, variant };
+}
+
+const PIEZA_BY_ID = PIEZAS_CATALOG.reduce((m, x) => (m[x.id] = x, m), {});
+
+/* Aviso temprano si un producto referencia una pieza que no existe: sin esto
+   la referencia se ignora en silencio y la checklist queda corta sin decirlo. */
+PRODUCTS.forEach(p => p.contains.forEach(ref => {
+  const { id } = splitRef(ref);
+  if(!PIEZA_BY_ID[id]) console.warn(`"${p.id}" referencia la pieza "${id}", que no existe en PIEZAS_CATALOG.`);
+}));
+
+/* Variantes de una pieza (si no declara ninguna, tiene una sola: "std"). */
+const variantsOf = x => (x.variants && x.variants.length)
+  ? x.variants : [{ id:"std", label:"Estandar" }];
+
+/* Productos que ya no hacen falta porque vienen dentro de otro que tienes.
+   Devuelve idCubierto -> [productos que lo cubren]. Derivado, nunca se guarda.
+   Recorre la cadena entera: asi cada set declara solo lo que absorbe
+   directamente y sacar uno nuevo es tocar un unico sitio. `vistos` corta los
+   ciclos por si alguna vez se declaran dos que se absorben mutuamente. */
+function coveredMap(){
+  const mapa = {};
+  const porId = id => PRODUCTS.find(q => q.id === id);
+
+  function marcar(origen, id, vistos){
+    if(vistos.has(id)) return;
+    vistos.add(id);
+    const lista = mapa[id] = mapa[id] || [];
+    if(!lista.includes(origen)) lista.push(origen);
+    const hijo = porId(id);
+    if(hijo) (hijo.reemplaza || []).forEach(sig => marcar(origen, sig, vistos));
+  }
+
+  PRODUCTS.forEach(p => {
+    if(getProductState(p.id) !== "owned") return;
+    (p.reemplaza || []).forEach(id => marcar(p, id, new Set([p.id])));
+  });
+  return mapa;
+}
+
+/* Un producto cuenta como resuelto si lo tienes O si viene en otro que tienes.
+   Es lo que quiere saber quien mira el catalogo: si le queda algo por comprar. */
+const isResolved = (p, cub) => getProductState(p.id) === "owned" || !!cub[p.id];
+
+/* Subcategorias en las que aparece un producto. Casi siempre una; los
+   productos cruzados declaran las demas en `alsoIn`. */
+const categoriesOf = p => [p.category].concat(p.alsoIn || []);
+
+/* Mapa "id@variante" -> productos que la incluyen. Sirve para saltar desde la
+   checklist al producto que trae la pieza. */
+const SOURCES = {};
+PRODUCTS.forEach(p => p.contains.forEach(ref => {
+  const key = normalizeRef(ref);
+  (SOURCES[key] = SOURCES[key] || []).push(p);
+}));
+
+/* Conjunto de variantes obtenidas, derivado de los productos marcados.
+   Un producto "Obtenido" marca TODAS las piezas que declara, incluidas las
+   cajas sorpresa: se asume caja completa. */
+function ownedVariantSet(){
+  const owned = new Set();
+  PRODUCTS.forEach(p => {
+    if(getProductState(p.id) === "owned")
+      p.contains.forEach(ref => owned.add(normalizeRef(ref)));
+  });
+  return owned;
+}
+
+/* Estado de una pieza: owned (todas sus variantes), partial o missing. */
+function piezaStatus(x, owned){
+  const vars = variantsOf(x);
+  const have = vars.filter(v => owned.has(x.id + "@" + v.id)).length;
+  return have === 0 ? "missing" : (have === vars.length ? "owned" : "partial");
+}
+
+/* Piezas de una coleccion, opcionalmente filtradas por linea. */
+const piezasDe = (col, line) => PIEZAS_CATALOG.filter(
+  x => x.collection === col && (!line || x.line === line));
+
+/* Progreso de una coleccion (entera o de una linea). Para el contador basta
+   con tener una variante de la pieza. */
+function progress(col, line, owned){
+  const items = piezasDe(col, line);
+  const got   = items.filter(x => piezaStatus(x, owned) !== "missing").length;
+  return { got, total: items.length, pct: items.length ? got / items.length * 100 : 0 };
+}
+
+/* Lineas en las que una coleccion tiene piezas, en el orden de LINES. */
+const lineasDe = col => Object.keys(LINES).filter(l => piezasDe(col, l).length);
+
+/* Progreso de una categoria con checklist de productos (mecanismo heredado de
+   Myth; hoy sin usar, ver PRODUCT_CHECKLISTS). */
+function catProgress(cat, cub){
+  const items = PRODUCTS.filter(p => categoriesOf(p).includes(cat));
+  const got   = items.filter(p => isResolved(p, cub)).length;
+  return { items, got, total: items.length, pct: items.length ? got / items.length * 100 : 0 };
+}
+
+
+/* ===========================================================================
+   BLOQUE 6 · UTILIDADES
+   =========================================================================== */
+
+/* Escapa texto antes de inyectarlo en HTML: los titulos vienen de datos. */
+const esc = str => String(str).replace(/[&<>"']/g,
+  c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+
+const formatPrice = v => (v === null || v === undefined)
+  ? null : CURRENCY.symbol + v.toLocaleString(CURRENCY.locale);
+
+function monthLabel(key){
+  if(MONTHS[key]) return MONTHS[key];
+  const [y, m] = key.split("-");
+  return MONTH_NAMES[Number(m) - 1] + " " + y;
+}
+
+/* "2026-09-05" -> "5 sep". El ano se sobreentiende por el acordeon. */
+function formatDay(date){
+  const [, m, d] = date.split("-");
+  return Number(d) + " " + MONTH_ABBR[Number(m) - 1];
+}
+
+function today(){ const t = new Date(); t.setHours(0,0,0,0); return t; }
+function parseDate(s){ const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d); }
+const daysUntil = s => Math.round((parseDate(s) - today()) / 86400000);
+
+const sortedMonthKeys = () => [...new Set(PRODUCTS.map(p => p.month))].sort();
+
+/* Proxima tanda = el primer mes que aun tiene algun lanzamiento por venir. */
+function nextWaveKey(){
+  return PRODUCTS.filter(p => daysUntil(p.date) >= 0).map(p => p.month).sort()[0] || null;
+}
+
+const dropDates = key =>
+  [...new Set(PRODUCTS.filter(p => p.month === key).map(p => p.date))].sort();
+
+
+/* ===========================================================================
+   BLOQUE 7 · RENDER — CATALOGO
+   =========================================================================== */
+const catalogEl = document.getElementById("catalog");
+
+function renderCatalog(){
+  const nextKey = nextWaveKey();
+  catalogEl.innerHTML = sortedMonthKeys().map(k => monthHTML(k, k === nextKey)).join("");
+  bindCatalogEvents();
+}
+
+function monthHTML(key, isNext){
+  const products = PRODUCTS.filter(p => p.month === key);
+  const cub      = coveredMap();
+  const ownedN   = products.filter(p => isResolved(p, cub)).length;
+  const isOpen   = state.ui.openMonths.includes(key);
+  const complete = ownedN === products.length && products.length > 0;
+
+  const drops    = dropDates(key);
+  const dropsTxt = drops.map(d => Number(d.split("-")[2])).join(" · ");
+  const past     = daysUntil(drops[drops.length - 1]) < 0;
+
+  /* Cuenta atras solo en la proxima tanda: es el dato que se viene a buscar. */
+  let countdown = "";
+  if(isNext){
+    const next = drops.find(d => daysUntil(d) >= 0);
+    const n    = next ? daysUntil(next) : null;
+    const txt  = n === 0 ? "Sale hoy" : n === 1 ? "Manana" : "En " + n + " dias";
+    countdown  = `<span class="chip chip--next">Proxima tanda · ${esc(txt)}</span>`;
+  }
+
+  const body = CATEGORY_ORDER.map(cat => {
+    const items = products.filter(p => categoriesOf(p).includes(cat));
+    return items.length ? subcatHTML(cat, items) : "";
+  }).join("");
+
+  return `
+  <section class="month${isNext ? " month--next" : ""}${past ? " month--past" : ""}"
+           data-month="${esc(key)}" data-open="${isOpen}">
+    <button class="month__head" aria-expanded="${isOpen}" aria-controls="body-${esc(key)}">
+      <svg class="month__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+      <span class="month__title">${esc(monthLabel(key))}</span>
+      <span class="month__drops" title="Fechas de salida de este mes">
+        ${drops.length > 1 ? esc(drops.length + " tandas: dias " + dropsTxt) : esc("Dia " + dropsTxt)}
+      </span>
+      <span class="month__meta">
+        ${countdown}
+        ${complete ? '<span class="chip chip--done">Completo</span>' : ""}
+        <span class="chip chip--count">${ownedN}/${products.length} productos</span>
+      </span>
+    </button>
+    <div class="month__body" id="body-${esc(key)}">
+      <div class="month__inner">${body}</div>
+    </div>
+  </section>`;
+}
+
+function subcatHTML(category, items){
+  /* Dentro de una subcategoria mandan las fechas: primero lo que sale antes. */
+  const sorted = [...items].sort((a,b) => a.date.localeCompare(b.date));
+  return `
+  <section class="subcat">
+    <header class="subcat__head">
+      <span class="subcat__name">${esc(category)}</span>
+      <span class="subcat__rule"></span>
+      <span class="subcat__n">${items.length}</span>
+    </header>
+    <div class="grid">${sorted.map(p => cardHTML(p, category)).join("")}</div>
+  </section>`;
+}
+
+/* `inCategory` es la subcategoria donde se dibuja esta copia. Un producto
+   cruzado se dibuja mas de una vez: todas comparten estado via data-pid, pero
+   cada una necesita su propio id de DOM. */
+function cardHTML(p, inCategory){
+  const st       = getProductState(p.id);
+  const owned    = ownedVariantSet();
+  const isRandom = RANDOM_BOX_CATEGORIES.includes(p.category);
+  const isSG     = p.category.startsWith("SG");
+  const isPromo  = p.category === "EGOLGEAR PROMOCIONALES";
+  const price    = formatPrice(p.price);
+  const otras    = categoriesOf(p).filter(c => c !== inCategory);
+  const cubrenlo = coveredMap()[p.id] || [];
+  const cubierto = cubrenlo.length && st !== "owned";
+  const domId    = "card-" + p.id + "--" + inCategory.replace(/\s+/g, "-").toLowerCase();
+
+  const badges = [
+    isSG ? '<span class="badge badge--sg">SG</span>' : '<span class="badge badge--dx">DX</span>',
+    isRandom ? '<span class="badge badge--random">Random</span>' : "",
+    isPromo  ? '<span class="badge badge--promo">Premio</span>' : "",
+    otras.length ? `<span class="badge badge--cross" title="Tambien listado en ${esc(otras.join(", "))}">+ ${esc(otras.join(" / "))}</span>` : ""
+  ].join("");
+
+  const stateBtns = Object.entries(STATES).map(([k, label]) => `
+    <button class="state-btn" data-state="${k}" data-product="${esc(p.id)}"
+            aria-pressed="${st === k}">${esc(label)}</button>`).join("");
+
+  /* Portada SIN loading="lazy" a proposito. Las tarjetas viven dentro del
+     acordeon, que arranca con max-height:0; el navegador las da por fuera de
+     pantalla y con lazy no las pide hasta que hay scroll, asi que al abrir un
+     mes se veria "Imagen pendiente" hasta mover el cursor.
+     `onload` retira el placeholder; `onerror` lo deja a la vista. */
+  const media = p.img
+    ? `<img class="card__img" src="${esc(p.img)}" alt="${esc(p.title)}" decoding="async"
+            onload="this.closest('.card__media').classList.add('is-loaded')"
+            onerror="this.style.display='none'">`
+    : "";
+
+  return `
+  <article class="card" data-state="${st}" data-pid="${esc(p.id)}" id="${esc(domId)}"
+           ${cubierto ? 'data-covered="true"' : ""}>
+    <div class="card__media">
+      <div class="card__ph">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.6" aria-hidden="true">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>
+        </svg>
+        Imagen pendiente
+      </div>
+      ${media}
+      <div class="card__badges">${badges}</div>
+      <div class="card__tick" aria-hidden="true">&#10003;</div>
+    </div>
+
+    <div class="card__body">
+      <h3 class="card__title">${esc(p.title)}</h3>
+      ${cubierto ? `<p class="card__covered">Ya lo tienes: viene en ${
+          cubrenlo.map(o => esc(o.title)).join(" y ")}</p>` : ""}
+
+      ${contentsHTML(p, owned)}
+
+      <div class="card__row">
+        ${price
+          ? `<span class="card__price"${p.priceLabel ? ` title="${esc(p.priceLabel)}"` : ""}>${esc(price)}</span>`
+          : `<span class="card__price card__price--tbd">${esc(p.priceLabel || "Precio por confirmar")}</span>`}
+        <span class="card__date${daysUntil(p.date) < 0 ? " card__date--past" : ""}">
+          ${esc(formatDay(p.date))}
+        </span>
+      </div>
+
+      <div class="states" role="group" aria-label="Estado de ${esc(p.title)}">${stateBtns}</div>
+    </div>
+  </article>`;
+}
+
+/* ---------------------------------------------------------------------------
+   Desplegable con las piezas de un producto. Lo usa cualquiera que traiga
+   alguna, no solo las cajas sorpresa.
+
+   La diferencia se nota en el texto y es real: en una caja sorpresa las piezas
+   son POSIBLES —te toca una— y en un set vienen GARANTIZADAS. Llamarlas igual
+   daria a entender que un set es una loteria.
+   --------------------------------------------------------------------------- */
+function contentsHTML(p, owned){
+  if(!p.contains.length) return "";
+  const esSorpresa = RANDOM_BOX_CATEGORIES.includes(p.category);
+  const n = p.contains.length;
+
+  const rows = p.contains.map(ref => {
+    const { id, variant } = splitRef(ref);
+    const x = PIEZA_BY_ID[id];
+    if(!x) return "";                                  // referencia huerfana
+    const isOwned = owned.has(normalizeRef(ref));
+    const vLabel  = variantsOf(x).length > 1
+      ? " · " + (variantsOf(x).find(v => v.id === variant) || {}).label : "";
+    return `
+      <li class="contents__item${isOwned ? " contents__item--owned" : ""}">
+        <span class="contents__thumb" aria-hidden="true">&#9679;</span>
+        <span class="contents__name">${esc(x.name + vLabel)}</span>
+        <span class="contents__dot" aria-hidden="true"></span>
+      </li>`;
+  }).join("");
+
+  const titulo = esSorpresa ? "Ver posibles contenidos"
+                            : (n === 1 ? "Pieza incluida" : "Piezas incluidas");
+  const nota = esSorpresa
+    ? `${n} piezas posibles. Marcar la caja como Obtenida las cuenta todas en la checklist.`
+    : `Marcar como Obtenido cuenta ${n === 1 ? "esta pieza" : "estas " + n + " piezas"} en la checklist.`;
+
+  return `
+  <details class="contents${esSorpresa ? "" : " contents--fijo"}">
+    <summary class="contents__toggle">
+      ${esc(titulo)}
+      <span class="contents__n">${n}</span>
+      <svg class="contents__arrow" width="13" height="13" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.6" stroke-linecap="round"
+           stroke-linejoin="round" aria-hidden="true">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </summary>
+    <ul class="contents__list">${rows}</ul>
+    <p class="contents__note">${nota}</p>
+  </details>`;
+}
+
+
+/* ===========================================================================
+   BLOQUE 8 · RENDER — CHECKLISTS (panel lateral)
+   ---------------------------------------------------------------------------
+   Una pestana por coleccion, generadas recorriendo COLECCIONES. Myth tenia una
+   rama especial para el gimmick y otra para las categorias; aqui las tres
+   colecciones son piezas repartidas y usan el mismo camino.
+   =========================================================================== */
+const panelBody  = document.getElementById("panelBody");
+const panelTabs  = document.getElementById("panelTabs");
+const panelHint  = document.getElementById("panelHint");
+const panelTitle = document.getElementById("panelTitle");
+const miniStats  = document.getElementById("miniStats");
+
+/* Pestanas visibles: colecciones con piezas + categorias con checklist propia. */
+function tabsDisponibles(){
+  const tabs = Object.entries(COLECCIONES)
+    .filter(([id]) => piezasDe(id).length)
+    .map(([id, c]) => ({ id, label:c.label, slug:c.slug, hint:c.hint, esColeccion:true }));
+  PRODUCT_CHECKLISTS.forEach(({ cat, label, slug, hint }) => {
+    if(catProgress(cat, {}).total) tabs.push({ id:cat, label, slug, hint, esColeccion:false });
+  });
+  return tabs;
+}
+
+function renderChecklist(){
+  const owned = ownedVariantSet();
+  const cub   = coveredMap();
+  const tabs  = tabsDisponibles();
+  const activa = tabs.find(t => t.id === state.ui.tab) || tabs[0];
+  if(!activa) return;
+
+  /* --- Mini barras de la cabecera ---
+     La coleccion principal se parte por linea y se lleva los colores fuertes.
+     Las secundarias van con una sola barra en tono suave: con demasiadas
+     gritando igual se pierde cual importa. */
+  miniStats.innerHTML = Object.entries(COLECCIONES).map(([col, c]) => {
+    if(!piezasDe(col).length) return "";
+    if(c.principal){
+      return lineasDe(col).map(line => {
+        const pr = progress(col, line, owned);
+        return miniStatHTML(`${c.label} ${line}`, pr, line.toLowerCase());
+      }).join("");
+    }
+    return miniStatHTML(c.label, progress(col, null, owned), c.slug);
+  }).join("") + PRODUCT_CHECKLISTS.map(({ cat, label, slug }) => {
+    const pr = catProgress(cat, cub);
+    return pr.total ? miniStatHTML(label, pr, slug) : "";
+  }).join("");
+
+  /* --- Pestanas --- */
+  panelTabs.innerHTML = tabs.map(t => {
+    const pr = t.esColeccion ? progress(t.id, null, owned) : catProgress(t.id, cub);
+    return `
+      <button class="panel__tab panel__tab--${esc(t.slug)}" role="tab"
+              aria-selected="${t.id === activa.id}" data-tab="${esc(t.id)}">
+        ${esc(t.label)}
+        <span class="panel__tab-n">${pr.got}/${pr.total}</span>
+      </button>`;
+  }).join("");
+
+  panelHint.innerHTML  = activa.hint;
+  panelTitle.textContent = "Checklist " + activa.label;
+
+  panelBody.innerHTML = activa.esColeccion
+    ? coleccionHTML(activa.id, owned)
+    : categoriaHTML(activa, cub);
+
+  bindChecklistEvents();
+}
+
+function miniStatHTML(label, pr, slug){
+  return `
+    <div class="mini-stat mini-stat--${esc(slug)}">
+      <div class="mini-stat__top">
+        <span class="mini-stat__label">${esc(label)}</span>
+        <span class="mini-stat__count">${pr.got}/${pr.total}</span>
+      </div>
+      <div class="mini-stat__bar"><div class="mini-stat__fill" style="width:${pr.pct}%"></div></div>
+    </div>`;
+}
+
+/* Una coleccion: se agrupa por linea y dentro por familia. */
+function coleccionHTML(col, owned){
+  return lineasDe(col).map(line => {
+    const pr = progress(col, line, owned);
+
+    const groups = Object.entries(FAMILIAS).map(([type, typeLabel]) => {
+      const all = piezasDe(col, line).filter(x => x.type === type);
+      if(!all.length) return "";
+
+      const visible = state.ui.hideOwned
+        ? all.filter(x => piezaStatus(x, owned) !== "owned") : all;
+      if(!visible.length) return "";
+
+      const gotN = all.filter(x => piezaStatus(x, owned) !== "missing").length;
+      return `
+        <div class="group">
+          <div class="group__head">
+            <span>${esc(typeLabel)}</span>
+            <span class="group__n">${gotN}/${all.length}</span>
+          </div>
+          ${visible.map(x => piezaItemHTML(x, owned)).join("")}
+        </div>`;
+    }).join("");
+
+    return `
+      <section class="line line--${line.toLowerCase()}">
+        <div class="line__head">
+          <span class="line__name">${esc(LINES[line])}</span>
+          <span class="line__count">${pr.got}/${pr.total}</span>
+        </div>
+        <div class="line__bar"><div class="line__fill" style="width:${pr.pct}%"></div></div>
+        ${groups || '<p class="panel__empty">Todo conseguido en esta linea.</p>'}
+      </section>`;
+  }).join("");
+}
+
+/* Checklist de producto: cada producto de la categoria es una pieza. */
+function categoriaHTML(tab, cub){
+  const pr = catProgress(tab.id, cub);
+  const visible = state.ui.hideOwned ? pr.items.filter(p => !isResolved(p, cub)) : pr.items;
+  const filas = [...visible]
+    .sort((a,b) => a.date.localeCompare(b.date) || a.title.localeCompare(b.title))
+    .map(p => productoItemHTML(p, cub)).join("");
+  return `
+    <section class="line line--${esc(tab.slug)}">
+      <div class="line__head">
+        <span class="line__name">${esc(tab.label.toUpperCase())}</span>
+        <span class="line__count">${pr.got}/${pr.total}</span>
+      </div>
+      <div class="line__bar"><div class="line__fill" style="width:${pr.pct}%"></div></div>
+      ${filas || '<p class="panel__empty">Todo conseguido en esta categoria.</p>'}
+    </section>`;
+}
+
+function piezaItemHTML(x, owned){
+  const status = piezaStatus(x, owned);
+  const vars   = variantsOf(x);
+
+  /* Las sub-marcas solo salen si la pieza tiene mas de una version; cada una
+     enlaza al producto que la trae, para saber que version falta y de donde. */
+  const chips = vars.length > 1
+    ? `<span class="item__vars">${vars.map(v => {
+         const has   = owned.has(x.id + "@" + v.id);
+         const donde = (SOURCES[x.id + "@" + v.id] || [])[0];
+         return `<span class="var-chip${has ? " var-chip--owned" : ""}"
+                  ${donde ? `data-goto="${esc(donde.id)}" role="link" tabindex="0"
+                  title="Viene en ${esc(donde.title)}"` : ""}>${esc(v.label)}</span>`;
+       }).join("")}</span>`
+    : "";
+
+  const source = (SOURCES[x.id + "@" + vars[0].id] || [])[0];
+  const meta = x.meaning ? `<span class="item__meta">${esc(x.meaning)}</span>` : "";
+
+  return `
+    <div class="item item--${status}" id="pieza-${esc(x.id)}"
+         data-goto="${source ? esc(source.id) : ""}" role="button" tabindex="0">
+      <span class="item__dot" aria-hidden="true"></span>
+      <span class="item__main">
+        <span class="item__name">${esc(x.name)}</span>
+        ${meta}${chips}
+      </span>
+    </div>`;
+}
+
+/* Misma estructura que una pieza para que el panel se lea igual.
+   Cubierto cuenta como conseguido: la pieza esta en tus manos aunque no
+   compraras esa caja. El matiz de por donde llego va en la etiqueta. */
+function productoItemHTML(p, cub){
+  const tengo    = getProductState(p.id) === "owned";
+  const cubierto = !tengo && !!cub[p.id];
+  const estado   = (tengo || cubierto) ? "owned" : "missing";
+  const via      = cubierto
+    ? `<span class="item__vars"><span class="var-chip var-chip--owned">Viene en ${esc(cub[p.id][0].title)}</span></span>`
+    : "";
+  return `
+    <div class="item item--${estado}" data-goto="${esc(p.id)}" role="button" tabindex="0">
+      <span class="item__dot" aria-hidden="true"></span>
+      <span class="item__main">
+        <span class="item__name">${esc(p.title)}</span>
+        ${via}
+      </span>
+    </div>`;
+}
+
+
+/* ===========================================================================
+   BLOQUE 9 · EVENTOS
+   =========================================================================== */
+function bindCatalogEvents(){
+
+  /* Abrir y cerrar mes */
+  catalogEl.querySelectorAll(".month__head").forEach(head => {
+    head.addEventListener("click", () => {
+      const section = head.closest(".month");
+      const key  = section.dataset.month;
+      const open = section.dataset.open !== "true";
+      section.dataset.open = open;
+      head.setAttribute("aria-expanded", open);
+      state.ui.openMonths = open
+        ? [...new Set([...state.ui.openMonths, key])]
+        : state.ui.openMonths.filter(k => k !== key);
+      saveState();
+    });
+  });
+
+  /* Clic en la portada -> visor. Las fotos pesadas se piden solo al abrirlo,
+     asi que la tarjeta cuesta lo que pesa su portada y nada mas. Con `lazy` a
+     secas el navegador tiraria de las cercanas y el ahorro se evaporaria. */
+  catalogEl.querySelectorAll(".card__media").forEach(media => {
+    const card  = media.closest(".card");
+    const prod  = PRODUCTS.find(p => p.id === card.dataset.pid);
+    const fotos = (prod && prod.gallery) || [];
+    if(!fotos.length) return;
+    media.style.cursor = "zoom-in";
+    media.title = fotos.length > 1
+      ? "Ver las " + fotos.length + " fotos" : "Ver la imagen a tamano completo";
+    media.addEventListener("click", () =>
+      openViewer(fotos, 0, card.querySelector(".card__title").textContent));
+  });
+
+  /* Cambiar estado */
+  catalogEl.querySelectorAll(".state-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.product;
+      /* Volver a pulsar el estado activo lo devuelve a "pending". */
+      state.products[id] = (getProductState(id) === btn.dataset.state)
+        ? "pending" : btn.dataset.state;
+      saveState();
+      updateCardUI(id);
+      refreshCoverage();
+      renderChecklist();
+      updateMonthCounters();
+    });
+  });
+}
+
+/* Refresca solo la tarjeta tocada: no re-dibuja el catalogo entero, asi no se
+   cierran los <details> abiertos ni se pierde el scroll. */
+function updateCardUI(id){
+  const st    = getProductState(id);
+  const prod  = PRODUCTS.find(p => p.id === id);
+  const owned = ownedVariantSet();
+
+  /* querySelectorAll, no getElementById: un producto cruzado tiene varias
+     tarjetas en pantalla y todas deben reflejar el mismo estado. */
+  document.querySelectorAll(`[data-pid="${id}"]`).forEach(card => {
+    card.dataset.state = st;
+    card.querySelectorAll(".state-btn").forEach(b =>
+      b.setAttribute("aria-pressed", b.dataset.state === st));
+    if(prod){
+      card.querySelectorAll(".contents__item").forEach((li, i) => {
+        const ref = prod.contains[i];
+        li.classList.toggle("contents__item--owned", ref && owned.has(normalizeRef(ref)));
+      });
+    }
+  });
+}
+
+/* Marcar un set afecta a OTRAS tarjetas: las que quedan cubiertas. Se
+   actualizan en el sitio para no perder desplegables abiertos ni el scroll. */
+function refreshCoverage(){
+  const cub = coveredMap();
+  PRODUCTS.forEach(p => {
+    const cubrenlo = cub[p.id] || [];
+    const activo   = cubrenlo.length && getProductState(p.id) !== "owned";
+    document.querySelectorAll(`[data-pid="${p.id}"]`).forEach(card => {
+      if(activo) card.dataset.covered = "true"; else delete card.dataset.covered;
+      let aviso = card.querySelector(".card__covered");
+      if(activo){
+        if(!aviso){
+          aviso = document.createElement("p");
+          aviso.className = "card__covered";
+          card.querySelector(".card__title").after(aviso);
+        }
+        aviso.textContent = "Ya lo tienes: viene en " + cubrenlo.map(o => o.title).join(" y ");
+      }else if(aviso){
+        aviso.remove();
+      }
+    });
+  });
+}
+
+function updateMonthCounters(){
+  const cub = coveredMap();
+  sortedMonthKeys().forEach(key => {
+    const section = catalogEl.querySelector(`.month[data-month="${key}"]`);
+    if(!section) return;
+    const items = PRODUCTS.filter(p => p.month === key);
+    const got   = items.filter(p => isResolved(p, cub)).length;
+
+    const chip = section.querySelector(".chip--count");
+    if(chip) chip.textContent = `${got}/${items.length} productos`;
+
+    const meta = section.querySelector(".month__meta");
+    const done = meta.querySelector(".chip--done");
+    if(got === items.length && items.length > 0){
+      if(!done){
+        const c = document.createElement("span");
+        c.className = "chip chip--done";
+        c.textContent = "Completo";
+        meta.insertBefore(c, chip);
+      }
+    }else if(done){
+      done.remove();
+    }
+  });
+}
+
+function bindChecklistEvents(){
+  panelTabs.querySelectorAll(".panel__tab").forEach(btn => {
+    btn.addEventListener("click", () => {
+      state.ui.tab = btn.dataset.tab;
+      saveState();
+      renderChecklist();
+      panelBody.scrollTop = 0;              // cada checklist empieza por arriba
+    });
+  });
+
+  panelBody.querySelectorAll(".item").forEach(item => {
+    const ir = e => {
+      const chip = e.target.closest(".var-chip[data-goto]");
+      const pid  = chip ? chip.dataset.goto : item.dataset.goto;
+      if(pid){ e.preventDefault(); goToProduct(pid); }
+    };
+    item.addEventListener("click", ir);
+    item.addEventListener("keydown", e => {
+      if(e.key === "Enter" || e.key === " ") ir(e);
+    });
+  });
+}
+
+/* Abre el mes que toque, cierra el panel y resalta la tarjeta. */
+function goToProduct(productId){
+  const prod = PRODUCTS.find(p => p.id === productId);
+  if(!prod) return;
+
+  if(!state.ui.openMonths.includes(prod.month)){
+    state.ui.openMonths.push(prod.month);
+    saveState();
+    const section = catalogEl.querySelector(`.month[data-month="${prod.month}"]`);
+    if(section){
+      section.dataset.open = "true";
+      section.querySelector(".month__head").setAttribute("aria-expanded", "true");
+    }
+  }
+  togglePanel(false);
+
+  /* Pequeno retardo: deja que el acordeon termine de expandirse. */
+  setTimeout(() => {
+    const card = document.querySelector(`[data-pid="${productId}"]`);
+    if(!card) return;
+    card.scrollIntoView({ behavior:"smooth", block:"center" });
+    card.classList.remove("card--flash");
+    void card.offsetWidth;                  // reinicia la animacion
+    card.classList.add("card--flash");
+  }, 340);
+}
+
+/* --- Visor de galeria --- */
+const viewerEl = document.getElementById("viewer");
+let viewerFotos = [], viewerIdx = 0;
+
+function openViewer(fotos, idx, titulo){
+  if(!fotos.length) return;
+  viewerFotos = fotos; viewerIdx = idx;
+  viewerEl.querySelector(".viewer__title").textContent = titulo;
+  showViewerImage();
+  viewerEl.dataset.open = "true";
+  document.body.style.overflow = "hidden";
+}
+function showViewerImage(){
+  const ruta = viewerFotos[viewerIdx];
+  const nombre = ruta.split("/").pop().replace(/\.[^.]+$/, "");
+  viewerEl.querySelector(".viewer__img").src = ruta;
+  viewerEl.querySelector(".viewer__count").textContent =
+    `${nombre} · ${viewerIdx + 1}/${viewerFotos.length}`;
+}
+const moveViewer = paso => {
+  viewerIdx = (viewerIdx + paso + viewerFotos.length) % viewerFotos.length;
+  showViewerImage();
+};
+function closeViewer(){
+  viewerEl.dataset.open = "false";
+  viewerEl.querySelector(".viewer__img").src = "";     // libera memoria
+  document.body.style.overflow = "";
+}
+viewerEl.querySelector(".viewer__close").addEventListener("click", closeViewer);
+viewerEl.querySelector(".viewer__prev").addEventListener("click", () => moveViewer(-1));
+viewerEl.querySelector(".viewer__next").addEventListener("click", () => moveViewer(1));
+viewerEl.addEventListener("click", e => { if(e.target === viewerEl) closeViewer(); });
+document.addEventListener("keydown", e => {
+  if(viewerEl.dataset.open !== "true") return;
+  if(e.key === "Escape")     closeViewer();
+  if(e.key === "ArrowLeft")  moveViewer(-1);
+  if(e.key === "ArrowRight") moveViewer(1);
+});
+
+/* --- Panel lateral --- */
+const panelEl    = document.getElementById("panel");
+const backdropEl = document.getElementById("backdrop");
+function togglePanel(open){
+  panelEl.dataset.open = open;
+  backdropEl.dataset.open = open;
+  document.body.style.overflow = open ? "hidden" : "";
+}
+document.getElementById("openPanel").addEventListener("click", () => togglePanel(true));
+document.getElementById("closePanel").addEventListener("click", () => togglePanel(false));
+backdropEl.addEventListener("click", () => togglePanel(false));
+document.addEventListener("keydown", e => {
+  if(e.key === "Escape" && panelEl.dataset.open === "true") togglePanel(false);
+});
+
+/* --- Filtro "ocultar los que ya tengo" --- */
+const hideOwnedEl = document.getElementById("hideOwned");
+hideOwnedEl.addEventListener("change", () => {
+  state.ui.hideOwned = hideOwnedEl.checked;
+  saveState();
+  renderChecklist();
+});
+
+
+/* ===========================================================================
+   BLOQUE 10 · ARRANQUE
+   =========================================================================== */
+function init(){
+  loadState();
+
+  /* Primera visita: se deja abierta la proxima tanda, para que se vea algo. */
+  if(!state.ui.openMonths.length){
+    const next = nextWaveKey() || sortedMonthKeys()[0];
+    if(next) state.ui.openMonths = [next];
+  }
+  hideOwnedEl.checked = !!state.ui.hideOwned;
+
+  renderCatalog();
+  renderChecklist();
+}
+
+init();
+</script>
+</body>
+</html>

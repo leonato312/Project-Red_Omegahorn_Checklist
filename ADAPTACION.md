@@ -1,0 +1,258 @@
+# Análisis de Myth y plan de adaptación a Omegahorn
+
+Lectura completa de `D:\DG\Kamen Rider_Myth`: `index.html` (2.261 líneas),
+`tools/` (3 scripts, 498 líneas), `.gitignore` y la estructura en disco.
+
+---
+
+## 1. Cómo está montado el `index.html`
+
+Un solo archivo, cuatro capas, con numeración de bloques en los comentarios:
+
+| Líneas | Bloque | Qué hay |
+|---|---|---|
+| 32–625 | CSS, 8 secciones | tokens → base → cabecera → acordeón → tarjetas → sub-acordeón → visor → panel → responsive |
+| 627–725 | **Bloque 1 · Configuración** | todas las constantes que se tocan al cambiar de serie |
+| 726–810 | **Bloque 2 · `EGGS_CATALOG`** | catálogo maestro del coleccionable |
+| 811–1350 | **Bloque 3 · `PRODUCTS`** | los productos, agrupados por mes en comentarios |
+| 1352–1394 | **Bloque 4 · Estado** | `localStorage`, carga y guardado |
+| 1395–1503 | **Bloque 5 · Índices** | derivados: cobertura, variantes, progreso |
+| 1504–1567 | **Bloque 6 · Utilidades** | escape, precio, fechas, meses |
+| 1568–1788 | **Bloque 7 · Render catálogo** | mes → subcategoría → tarjeta |
+| 1789–1964 | **Bloque 8 · Render checklist** | panel lateral y pestañas |
+| 1965–2239 | **Bloque 9 · Eventos** | acordeón, estados, visor, panel |
+| 2240–2261 | **Bloque 10 · Arranque** | `init()` |
+
+El `<body>` es mínimo: cabecera, `<main id="catalog">` vacío, el visor, el
+backdrop y el `<aside id="panel">`. **Todo el contenido se genera desde JS.**
+
+---
+
+## 2. El flujo de datos — lo que de verdad hay que entender
+
+```
+PRODUCTS[].date  ──> p.month = date.slice(0,7)  ──> acordeón de meses
+                     (línea 1349, una sola línea)
+
+PRODUCTS[].contains ─┐
+                     ├─> ownedVariantSet() ─> eggsStatus() ─> checklist + barras
+EGGS_CATALOG ────────┘
+
+PRODUCTS[].reemplaza ──> coveredMap() ──> isResolved() ──> "cubierto" + contadores
+
+PRODUCTS[].contains ──> SOURCES ──> salto desde la checklist al producto
+```
+
+**La regla de oro, y está escrita en el propio archivo:** solo se persiste
+`{products:{id:estado}, ui:{...}}`. *La checklist nunca se guarda: se deriva de
+los productos en cada render.* Por eso marcar un set actualiza sola la lista de
+piezas y nunca se desincroniza.
+
+`loadState()` además **descarta ids que ya no existen**, para que renombrar un
+producto no deje basura invisible en el guardado.
+
+---
+
+## 3. Los tres mecanismos de checklist que ya existen
+
+**a) Coleccionable repartido** — `EGGS_CATALOG` + `contains`. La pieza no tiene
+producto propio; el progreso se deriva. Soporta `variants` (una línea del panel,
+cualquier versión la marca) y `line` (DX/SG con contadores separados).
+
+**b) Checklist de producto** — `PRODUCT_CHECKLISTS` + `catProgress(cat)`. Cada
+producto de una categoría **es** la pieza. Se usa para TAF, SO-DO, Buckles y
+Vinyl.
+
+**c) Cobertura** — `reemplaza` + `coveredMap()`. Recursivo con corte de ciclos
+(`vistos`), así que la cadena se resuelve sola declarando solo lo directo. Un
+producto cubierto cuenta como conseguido en la checklist, pero en la tarjeta se
+atenúa con «Ya lo tienes: viene en X».
+
+---
+
+## 4. El problema estructural de Omegahorn
+
+**Los coleccionables secundarios de Omegahorn no encajan en el mecanismo (b).**
+
+En Myth funcionaba porque TAF, SO-DO, Buckles y Vinyl son categorías donde
+un producto = una pieza. En Omegahorn no:
+
+| Pieza secundaria | Aparece en |
+|---|---|
+| Horned Beast Enkaku | `DX MEGA FLAME HORN ENKAKU` · `ENKAKU ＆ OMEGAHORN SET` · `EGOLGEAR SET` |
+| Omega Horn | `DX OMEGAHORN` · `ENKAKU ＆ OMEGAHORN SET` · `EGOLGEAR SET` |
+| Horned Beast Enkaku (SG) | `YU-DO … ENKAKU` · `MINIPLA … SET` |
+
+Son piezas repartidas entre productos, exactamente como los EgolGear. Necesitan
+el mecanismo **(a)**, no el **(b)**.
+
+### La adaptación mínima
+
+Generalizar `EGGS_CATALOG` a un `PIEZAS_CATALOG` con un campo `collection`:
+
+```js
+const COLECCIONES = {
+  "egolgear":     { label:"EgolGear",      principal:true },
+  "horned-beast": { label:"Horned Beasts" },
+  "omegahorn":    { label:"Omegahorn" }
+};
+```
+
+Cada pieza declara `collection`, `type`, `line` y opcionalmente `variants`.
+Los productos siguen declarando **un solo `contains`** con piezas de las tres
+colecciones mezcladas — el motor no necesita distinguirlas al marcar.
+
+Qué hay que tocar, y no es mucho:
+
+| Función | Cambio |
+|---|---|
+| `lineProgress(line, owned)` | añadir parámetro `collection` y filtrar por él |
+| rama `if(activa.id === "eggs")` del panel | parametrizar por colección en vez de hardcodear |
+| `miniStats` | recorrer `COLECCIONES` × `EGGS_LINES` |
+| `CHECKLIST_TABS` | una pestaña por colección |
+
+**Todo lo demás sigue igual**: `contains`, `coveredMap`, `SOURCES`, `variants`,
+`normalizeRef`, el visor, el acordeón y los eventos no se enteran del cambio,
+porque para ellos una pieza es una pieza.
+
+**Cuidado con la cabecera.** Tres colecciones × dos líneas son seis barras, y el
+§3 de la plantilla avisa de que con seis barras gritando igual se pierde cuál
+importa. Propuesta: EgolGear DX y SG con los colores fuertes y barra propia;
+Horned Beasts y Omegahorn en una sola barra cada una, sin partir por línea, en
+tonos suaves.
+
+---
+
+## 5. Mapa de configuración · Myth → Omegahorn
+
+Todo esto vive en el Bloque 1 y es lo único que se reescribe.
+
+| Constante | Myth | Omegahorn |
+|---|---|---|
+| `STORAGE_KEY` | `"krmyth-catalog-v1"` | **`"omegahorn-catalog-v1"`** |
+| `CATEGORY_ORDER` | 12 categorías | `TAF · SOFTVINYL · SG MINIPLA · SG YU-DO · SG RANDOM BOX · DX SETS · DX MECHAS · DX EGOLGEAR SETS · EGOLGEAR PROMOCIONALES` |
+| `RANDOM_BOX_CATEGORIES` | SG y DX RANDOM BOX | **solo `SG RANDOM BOX`** — ver §6 |
+| `MONTHS` | jul–nov 2026 | jul · ago · sep · oct 2026 |
+| `EGGS_TYPES` | 5 tipos de Eggs | `egolgear` · `egolgear-kakuju` · `zetsu-egolgear` |
+| `EGGS_LINES` | `{DX, SG}` | igual |
+| `COMPONENTES` | Drivers y Buckles | **probablemente vacío** — ver §6 |
+| `CHECKLIST_TABS` | Eggs + 4 categorías | EgolGear · Horned Beasts · Omegahorn |
+| `PRODUCT_CHECKLISTS` | TAF, SO-DO, Buckles, Vinyl | **ninguna de momento** — TAF y SOFTVINYL tienen 1 producto cada una |
+| `STATES` | pending/reserved/owned | igual |
+| `CURRENCY` | ¥ / ja-JP | igual |
+
+### Tokens de color
+
+```css
+--dx:  #f0b429;   /* oro  -> pasa a ROJO     */
+--sg:  #35d0d8;   /* cian -> pasa a TURQUESA */
+--taf --sodo --buckles --vinyl   /* se reemplazan por los de las colecciones
+                                    secundarias, en tonos suaves */
+```
+
+El resto de tokens (superficies, texto, estados, métricas) se hereda tal cual:
+son neutros y no tienen nada de Myth.
+
+---
+
+## 6. Cosas que encontré y hay que resolver
+
+**El precio de los yu-dō está mal en el registro.** Anoté 418 para cada uno de
+los tres productos, pero `YU-DO … ENKAKU` son las cajas ① ② ③, o sea **3 × 418 =
+1.254**. Igual `… OMEGAHORN` son 2 × 418 = **836**, y solo `… CAPTAIN OMEGAHORN`
+cuesta 418 de verdad. Hay que corregirlo antes de escribir `PRODUCTS`.
+
+**Los yu-dō no son caja sorpresa.** La foto de la caja lleva
+`この箱の中には ① が入っています` — el número va impreso fuera, así que se elige.
+Por eso `SG YU-DO` **no** entra en `RANDOM_BOX_CATEGORIES`: si entrara, la
+tarjeta diría «Ver posibles contenidos» y trataría un contenido garantizado como
+una lotería.
+
+**`COMPONENTES` se queda casi vacío, y es una mejora.** En Myth existía porque
+Drivers y Buckles no eran Eggs y la auditoría no podía deducir la cobertura sin
+ellos. En Omegahorn los Horned Beasts y el Omega Horn **sí** son coleccionables,
+así que van en `contains` y la auditoría 3b deduce la cadena de Enkaku sola:
+
+```
+DX MEGA FLAME HORN ENKAKU  {beast-enkaku}
+DX OMEGAHORN               {omegahorn, egolgear-enkaku}
+  ⊂ ENKAKU ＆ OMEGAHORN SET  {beast-enkaku, omegahorn, egolgear-enkaku}
+    ⊂ EGOLGEAR SET           {… + 5 gears}
+```
+
+**El promocional no tiene fecha exacta y el motor la exige.** `p.month` sale de
+`date.slice(0,7)` y no hay rama para fechas parciales. Opciones: darle un día
+convencional de septiembre, o dejarlo fuera del catálogo hasta que se concrete.
+
+**Los productos de imagen suelta no los cubren las herramientas.** `plan.py`
+mapea `id → carpeta`, así que los productos sin carpeta —como será el
+promocional— **no pasan por `build_all.py`**. En Myth hay 4 así y sus `.webp`
+están generados a mano. Si el promocional se queda como imagen suelta, o se
+convierte a mano o hay que extender `plan.py`.
+
+**El espejo de `alsoIn` no se declara en `plan.py`.** El comentario del propio
+script lo dice: el Ridewatter sale solo por su categoría primaria, aunque tenga
+carpeta espejo. Para Omegahorn eso significa listar `Zetsu-Enkaku` únicamente
+bajo `DX SETS`; la copia de `DX MECHAS` se queda sin `.webp`, igual que la de
+`TAF` en Myth.
+
+---
+
+## 7. Las herramientas
+
+| Script | Lee | Escribe | Qué hace |
+|---|---|---|---|
+| `audit.py` | `index.html` + disco | nada | 4 secciones + una 3b |
+| `plan.py` | disco | nada | portada y galería que saldrían |
+| `build_all.py` | `plan.py` | `.webp` + `index.html` | convierte y repunta rutas |
+
+`audit.py` comprueba, en este orden: (1) rutas referenciadas que no existen,
+`.webp` huérfanos y carpetas que el HTML ignora; (2) portada y numeración;
+(3) el árbol de `reemplaza` con detección de ciclos e ids inexistentes;
+(3b) cobertura **deducida** comparando conjuntos de contenido; (4) nomenclatura
+y duplicados entre categorías. Salida ordenada por severidad ALTO/MEDIO/BAJO.
+
+`build_all.py` genera `<nombre>.webp` a 1600 px calidad 80 y
+`<nombre>-thumb.webp` a 700 px calidad 82, salta `FICHA/`, **no renombra ni
+borra nada**, y luego reescribe `img:` y `gallery:` en el HTML con expresiones
+regulares ancladas al `id` del producto. Al final verifica rutas rotas y calcula
+el peso de despliegue.
+
+**Nota sobre el escalado:** `escala = min(1.0, lado/max(w,h))` — nunca amplía.
+Nuestros originales son de 1500 px (Bandai juguetes) y 1200 px (Bandai Candy),
+así que las galerías se quedarán por debajo de los 1600 nominales. No es un
+fallo; es que no hay más resolución publicada.
+
+---
+
+## 8. Detalles de implementación que conviene no perder
+
+- **Sin `loading="lazy"` en las portadas.** Las tarjetas viven dentro de un
+  acordeón con `max-height:0` y el navegador no las pediría hasta hacer scroll.
+- **La galería sí se difiere de verdad**: el visor solo pide la foto al abrirse.
+- **`updateCardUI` + `refreshCoverage` en vez de re-render completo**, para no
+  cerrar los `<details>` abiertos ni perder el scroll.
+- **`querySelectorAll("[data-pid]")`, nunca `getElementById`**: un producto con
+  `alsoIn` tiene varias tarjetas y todas deben reflejar el mismo estado.
+- **Volver a pulsar el estado activo lo devuelve a `pending`.**
+- **`esc()` en todo lo que venga de datos** antes de inyectarlo.
+- El texto del desplegable cambia según sea caja sorpresa («posibles
+  contenidos») o set («Eggs incluidos»): llamarlos igual daría a entender que un
+  set es una lotería.
+
+---
+
+## 9. Orden de trabajo propuesto
+
+1. `git init` y primer commit con lo que hay. Un error de sintaxis deja la
+   página en blanco; sin Git no hay a qué volver.
+2. Copiar `index.html`, `tools/` y `.gitignore` desde Myth.
+3. Vaciar `PRODUCTS` y `EGGS_CATALOG`; reescribir el Bloque 1 con la tabla del §5.
+4. Generalizar a `PIEZAS_CATALOG` con `collection` (§4). Cuatro funciones.
+5. Escribir el catálogo de piezas: 25 EgolGear DX + 8 SG + 7 Horned Beasts + 4
+   Omegahorn.
+6. Escribir `PRODUCTS` con los 25 productos del `REGISTRO.md`, corrigiendo antes
+   los precios de yu-dō (§6).
+7. Rellenar `CARPETA` en `plan.py` con las 25 carpetas, sin el espejo de MECHAS.
+8. `audit.py` → `plan.py` → `build_all.py` → `audit.py` otra vez.
+9. Repositorio público y GitHub Pages desde `main` / root.

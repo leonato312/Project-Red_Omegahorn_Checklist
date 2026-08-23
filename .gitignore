@@ -1,0 +1,34 @@
+# ============================================================================
+# QUE SE SUBE Y QUE NO
+# ============================================================================
+# Se despliega solo lo derivado (.webp) + index.html + tools/
+# Todo lo de abajo se queda en local.
+#
+# OJO: Git NO es la copia de seguridad de los originales. Estan ignorados a
+# proposito y necesitan respaldo aparte (Drive o similar).
+# ----------------------------------------------------------------------------
+
+# FICHA/ es la base de datos: capturas de Bandai a resolucion original, de
+# donde salen contenidos, fecha y precio. Se consultan ANTES de tocar la
+# pagina. No se publican y no se les generan .webp a proposito, para no perder
+# resolucion al leerlas.
+FICHA/
+**/FICHA/
+
+# Fotos originales de las galerias. La pagina usa los .webp generados a partir
+# de ellas; estas son el maestro y se quedan en local.
+*.jpg
+*.jpeg
+*.png
+
+# Hojas de calculo de apoyo
+*.xlsx
+
+# Temporales del generador
+.imgmap.json
+.products.js
+
+# Sistema
+Thumbs.db
+desktop.ini
+.DS_Store
