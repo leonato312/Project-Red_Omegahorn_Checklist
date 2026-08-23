@@ -1,6 +1,20 @@
-# Análisis de Myth y plan de adaptación a Omegahorn
+# Cómo funciona el motor · y de dónde viene
 
-Lectura completa de `D:\DG\Kamen Rider_Myth`: `index.html` (2.261 líneas),
+Documento de dos caras:
+
+- **Referencia del motor de Omegahorn.** Los §§1–3 describen una arquitectura
+  que Omegahorn hereda casi intacta, así que valen igual para leer su
+  `index.html`. Solo hay que traducir dos nombres: donde dice `EGGS_CATALOG`,
+  aquí es `PIEZAS_CATALOG`, y donde dice `EGGS_LINES`, es `LINES`.
+- **Registro histórico.** Nació como el análisis de Kamen Rider Myth y el plan
+  para adaptarlo. Se conserva porque explica **por qué** Omegahorn se separó de
+  Myth, y ese razonamiento es lo que hace falta la próxima vez que haya que
+  decidir si algo se generaliza o se copia.
+
+**Para arrancar una serie nueva no se lee esto, se lee `PROJECT-RED.md`**, que
+ya parte de Omegahorn. Esto es el porqué; aquello es el cómo.
+
+Base del análisis: `D:\DG\Kamen Rider_Myth` — `index.html` (2.261 líneas),
 `tools/` (3 scripts, 498 líneas), `.gitignore` y la estructura en disco.
 
 ---
@@ -70,7 +84,9 @@ atenúa con «Ya lo tienes: viene en X».
 
 ---
 
-## 4. El problema estructural de Omegahorn
+## 4. El problema estructural de Omegahorn — y por qué cambia la plantilla
+
+Esta sección es la razón de que `PROJECT-RED.md` ya no parta de Myth.
 
 **Los coleccionables secundarios de Omegahorn no encajan en el mecanismo (b).**
 
@@ -279,3 +295,43 @@ encadenarlo.
 
 101 fotos: **94,8 MB de originales → 16,7 MB en WebP**, un 82 % menos. Más
 1,23 MB de portadas. Despliegue total, sin `FICHA/` ni originales: **18,1 MB**.
+
+---
+
+## 10. Qué hereda la próxima serie
+
+Lo que sigue es el resumen de este documento en forma de decisión, para no
+tener que releerlo entero.
+
+**Se copia tal cual de Omegahorn:**
+
+| Qué | Por qué |
+|---|---|
+| El motor entero, Bloques 4 a 10 | estado, cobertura, render, eventos y visor no saben de qué serie son |
+| Las tres herramientas | ya cubren carpetas, archivos sueltos y copias espejo |
+| Los tokens neutros del CSS | superficies, texto, estados y métricas no tienen nada de Omegahorn |
+| `.gitignore` | filtra por patrón |
+
+**Se reescribe:**
+
+| Qué | Cuánto |
+|---|---|
+| `COLECCIONES`, `FAMILIAS`, `LINES` | una entrada por coleccionable de la serie |
+| El resto del Bloque 1 | categorías, meses, clave de `localStorage`, colores |
+| `PIEZAS_CATALOG` y `PRODUCTS` | los datos, que es el trabajo de verdad |
+| `CARPETA` y `SUELTO` en `plan.py` | una línea por producto |
+| Cabecera, `<title>` y los tres textos de ayuda | |
+
+**Lo que no hay que volver a decidir**, porque ya está decidido y razonado en
+`PROJECT-RED.md`: que la checklist se deriva y no se guarda, que el mes es la
+categoría raíz, que la cobertura es transitiva y se declara solo hacia abajo,
+que las piezas de una caja sorpresa son entradas separadas, que las familias se
+definen por criterio y no por lista, y que la jerarquía visual la dan el color y
+el ancho, nunca la opacidad.
+
+**La pregunta que decide si hay que tocar el motor** es la del §9.2 de la
+plantilla: *¿cada coleccionable está repartido entre productos, o cada producto
+es una pieza?* Si todos los coleccionables de la serie nueva caben en alguno de
+los dos mecanismos que ya existen, el motor no se toca. Solo si aparece un
+tercer tipo de coleccionable que no encaje en ninguno habría que generalizar
+otra vez — y entonces conviene escribir aquí por qué, como se hizo con esto.

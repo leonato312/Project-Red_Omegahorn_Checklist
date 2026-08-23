@@ -1,8 +1,14 @@
 # Registro de datos — Omegahorn
 
-Recopilación de fichas antes de construir nada. Fuente: capturas en
-`<CATEGORÍA>/FICHA/`, tomadas de las páginas oficiales de Bandai
-(`toy.bandai.co.jp/en/article/detail/?cate=item&path=01_207xx`).
+Datos recopilados de Omegahorn y decisiones tomadas sobre ellos. Fuente:
+capturas en `<CATEGORÍA>/FICHA/`, cotejadas contra las páginas oficiales de
+Bandai (`toy.bandai.co.jp` y `bandai.co.jp/candy`).
+
+Este archivo es **de esta serie**. Lo que sirve para cualquier otra está en
+`PROJECT-RED.md`, y cómo funciona el motor, en `ADAPTACION.md`.
+
+Se mantiene al día: cada decisión de nomenclatura que se cierre se anota aquí,
+para que nadie la deshaga después creyendo que era una errata.
 
 Estado a 22 de agosto de 2026: **25 productos** confirmados, hasta 2026/10/03
 — 19 de la línea DX, 5 de la línea SG y 1 premio de campaña. Fotos completas
