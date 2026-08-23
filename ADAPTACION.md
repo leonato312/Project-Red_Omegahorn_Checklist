@@ -242,17 +242,36 @@ fallo; es que no hay más resolución publicada.
 
 ---
 
-## 9. Orden de trabajo propuesto
+## 9. Orden de trabajo — estado
 
-1. `git init` y primer commit con lo que hay. Un error de sintaxis deja la
-   página en blanco; sin Git no hay a qué volver.
-2. Copiar `index.html`, `tools/` y `.gitignore` desde Myth.
-3. Vaciar `PRODUCTS` y `EGGS_CATALOG`; reescribir el Bloque 1 con la tabla del §5.
-4. Generalizar a `PIEZAS_CATALOG` con `collection` (§4). Cuatro funciones.
-5. Escribir el catálogo de piezas: 25 EgolGear DX + 8 SG + 7 Horned Beasts + 4
-   Omegahorn.
-6. Escribir `PRODUCTS` con los 25 productos del `REGISTRO.md`, corrigiendo antes
-   los precios de yu-dō (§6).
-7. Rellenar `CARPETA` en `plan.py` con las 25 carpetas, sin el espejo de MECHAS.
-8. `audit.py` → `plan.py` → `build_all.py` → `audit.py` otra vez.
-9. Repositorio público y GitHub Pages desde `main` / root.
+| # | Paso | Estado |
+|---|---|---|
+| 1 | `git init` y primer commit | hecho |
+| 2 | Motor escrito desde cero heredando el sistema | hecho |
+| 3 | Bloque 1 reescrito con la tabla del §5 | hecho |
+| 4 | `PIEZAS_CATALOG` con `collection` | hecho |
+| 5 | Catálogo de piezas: 44 en tres colecciones | hecho |
+| 6 | `PRODUCTS`: 25 productos, precios de yu-dō corregidos | hecho |
+| 7 | `tools/` con las 25 carpetas y el suelto | hecho |
+| 8 | `audit.py` → `plan.py` → `build_all.py` → `audit.py` | hecho, sin incidencias |
+| 9 | Repositorio público y GitHub Pages desde `main` / root | **pendiente** |
+
+### Los dos huecos de las herramientas de Myth, arreglados
+
+- **Productos de una sola imagen.** En Myth no pasaban por `plan.py` y sus
+  `.webp` se generaban a mano. Aquí `plan.py` tiene un diccionario `SUELTO`
+  aparte de `CARPETA` y `build_all.py` los convierte igual que a los demás.
+- **Falsos positivos de la auditoría.** La copia espejo de un producto cruzado
+  ya no sale como «carpeta que el HTML no referencia»: `audit.py` deduce los
+  espejos desde `alsoIn` y los reconoce. Tampoco marca los productos de una
+  imagen como archivos perdidos.
+
+`audit.py` además comprueba ahora la integridad del catálogo de piezas
+—referencias huérfanas, piezas que ningún producto trae, familias sin
+etiqueta— y devuelve código de salida 1 si hay algo en ALTO, para poder
+encadenarlo.
+
+### Resultado de la conversión
+
+101 fotos: **94,8 MB de originales → 16,7 MB en WebP**, un 82 % menos. Más
+1,23 MB de portadas. Despliegue total, sin `FICHA/` ni originales: **18,1 MB**.
