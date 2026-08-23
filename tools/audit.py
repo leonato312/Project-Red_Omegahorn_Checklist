@@ -249,7 +249,7 @@ print(' 4b. COBERTURA DEDUCIDA DE LOS CONTENIDOS')
 print('=' * 62)
 print('  Compara el contenido real de cada caja en vez de fiarse de lo que')
 print('  declaramos. En Myth hacia falta el campo `componentes` porque Drivers')
-print('  y Buckles no eran coleccionables; aqui los Horned Beasts y el Omega')
+print('  y Buckles no eran coleccionables; aqui los Kakuzyu y el Omega')
 print('  Horn SI lo son, asi que `contains` ya basta para deducirlo.')
 print('')
 

@@ -49,7 +49,7 @@ CARPETA = {
  'sg-yudo-omegahorn':       'SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 OMEGAHORN',
  'sg-yudo-captain':         'SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 CAPTAIN OMEGAHORN',
 
- 'sv-enkaku':               'SOFTVINYL/SOFT VINYL HORNED BEAST ENKAKU',
+ 'sv-enkaku':               'SOFTVINYL/SOFT VINYL KAKUZYU ENKAKU',
  'taf-captain':             'TAF/TAF CAPTAIN OMEGAHORN',
 }
 

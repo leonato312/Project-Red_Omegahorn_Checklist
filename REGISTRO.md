@@ -28,7 +28,7 @@ ficha indica preventa exclusiva online, así que todos `dateType:"release"`.
 | DX MEGA BRAVE HORN GOKAKU | DX MECHAS | 3.850 |
 | DX EGOLGEAR SET 01 | DX EGOLGEAR SETS | 1.100 |
 | DX EGOLGEAR SET 02 | DX EGOLGEAR SETS | 1.100 |
-| PROJECT RED soft vinyl Series: Horned Beast Enkaku | SOFTVINYL | 990 |
+| PROJECT RED soft vinyl Series: Kakuzyu Enkaku | SOFTVINYL | 990 |
 | TOKUSATSU ACTION FIGURE CAPTAIN OMEGAHORN | TAF | 4.840 |
 
 ### 2026/07/27
@@ -105,7 +105,7 @@ oficial (ver §7.3).
 | DX EGOLGEAR SET 04 | Hyokaku · Nekkaku EgolGear |
 | DX EGOLGEAR SET 05 | Ikaku · Funkaku EgolGear |
 | DX EGOLGEAR SET 06 | Kyoukaku · Youkaku EgolGear |
-| soft vinyl Horned Beast Enkaku | figura, pieza única |
+| soft vinyl Kakuzyu Enkaku | figura, pieza única |
 | TAF CAPTAIN OMEGAHORN | figura · accesorio Omega Horn (no cuenta, ver §5) |
 | SG EGOLGEAR RANDOM BOX 01 | caja sorpresa, **1 de 8** EgolGear SG (ver §6.1) |
 | YU-DO … 01 ENKAKU | cajas ① ② ③ → Enkaku (SG) |
@@ -209,12 +209,12 @@ Tres familias, para no dejar 24 piezas en lista plana:
 | `type` | Qué agrupa | DX | SG |
 |---|---|---|---|
 | `egolgear` | los normales | 17 | 7 |
-| `egolgear-kakuju` | los que tienen Horned Beast | 6 | 1 |
+| `egolgear-kakuju` | los que tienen Kakuzyu | 6 | 1 |
 | `zetsu-egolgear` | versiones absolutas sin figura propia | 2 | — |
 
 **La familia la decide el bicho, no la caja.** Un gear entra en
-`egolgear-kakuju` si pertenece a un Horned Beast **o si existe figura de ese
-Horned Beast**. No importa en qué caja venga el gear.
+`egolgear-kakuju` si pertenece a un Kakuzyu **o si existe figura de ese
+Kakuzyu**. No importa en qué caja venga el gear.
 
 Consecuencias de esa regla:
 
@@ -246,13 +246,13 @@ propia.
 **No son el gimmick de la temporada.** Van en checklist aparte, con su propia
 solapa y tonos suaves — los dos colores fuertes se reservan para el EgolGear.
 
-### 4.1 Horned Beasts (mechas)
+### 4.1 Kakuzyu (mechas)
 
-Los bichos en sí. Se llaman "Horned Beast" en las fichas de ahora, pero **el
+Los bichos en sí. Se llaman "Kakuzyu" en las fichas de ahora, pero **el
 prefijo puede no acompañar a variantes futuras**: la checklist agrupa por
 criatura, no por cómo la titule Bandai.
 
-| Horned Beast | Viene en |
+| Kakuzyu | Viene en |
 |---|---|
 | Enkaku | DX MEGA FLAME HORN ENKAKU · ENKAKU SET · EGOLGEAR SET |
 | Zankaku | DX MEGA SLASH HORN ZANKAKU |
@@ -263,11 +263,11 @@ criatura, no por cómo la titule Bandai.
 
 Seis hasta octubre, todos DX.
 
-**Minipla saca sus propios Horned Beasts y cuentan aparte**, igual que DX y SG
+**Minipla saca sus propios Kakuzyu y cuentan aparte**, igual que DX y SG
 en el coleccionable principal. El Enkaku de Minipla es un model kit de tres
 cajas, no el mismo juguete que el DX de 350 mm:
 
-| Horned Beast SG | Viene en |
+| Kakuzyu SG | Viene en |
 |---|---|
 | Enkaku (SG) | `YU-DO … 01 ENKAKU` · MINIPLA SET |
 
@@ -343,7 +343,7 @@ componen, y así están las carpetas en disco:
 
 | Producto | Cajas | Compone |
 |---|---|---|
-| `YU-DO … 01 ENKAKU` | ① ② ③ | Horned Beast Enkaku (SG) |
+| `YU-DO … 01 ENKAKU` | ① ② ③ | Kakuzyu Enkaku (SG) |
 | `YU-DO … 01 OMEGAHORN` | ④ ⑤ | Omega Horn (SG) + Enkaku EgolGear (SG) |
 | `YU-DO … 01 CAPTAIN OMEGAHORN` | ⑥ | figura de 110 mm, se completa sola |
 
@@ -548,7 +548,7 @@ producto DX cubre uno SG ni al revés.
 | 2 | Familias | **`egolgear` · `egolgear-kakuju` · `zetsu-egolgear`** (§3) |
 | 3 | Líneas con piezas exclusivas | **DX y SG**, contadores separados — SG ya desglosada (§6) |
 | 4 | Categorías | DX SETS · DX MECHAS · DX EGOLGEAR SETS · SG MINIPLA · SG YU-DO · SG RANDOM BOX · EGOLGEAR PROMOCIONALES · SOFTVINYL · TAF |
-| 5 | Checklists propias | EgolGear (principal) + Horned Beasts y Omegahorn (secundarias) |
+| 5 | Checklists propias | EgolGear (principal) + Kakuzyu y Omegahorn (secundarias) |
 | 6 | Sets que absorben | sí: la cadena de Enkaku en DX y el SET de Minipla en SG (§8) |
 | 7 | Colores | **rojo** EgolGear DX · **turquesa** EgolGear SG · resto en tonos suaves |
 | 8 | Clave de `localStorage` | pendiente — se fija al analizar el `index.html` de Myth |
@@ -566,7 +566,7 @@ capturas. Base: `https://toy.bandai.co.jp/en/article/detail/?cate=item&path=`
 | `01_20720` | DX EGOLGEAR SET 01 |
 | `01_20721` | DX OMEGAANALYZER |
 | `01_20722` | TOKUSATSU ACTION FIGURE CAPTAIN OMEGAHORN |
-| `01_20723` | PROJECT RED soft vinyl Series: Horned Beast Enkaku |
+| `01_20723` | PROJECT RED soft vinyl Series: Kakuzyu Enkaku |
 | `01_20724` | DX EGOLGEAR SET 02 |
 | `01_20725` | DX MEGA SLASH HORN ZANKAKU |
 | `01_20726` | DX MEGA BRAVE HORN GOKAKU |

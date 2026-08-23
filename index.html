@@ -26,7 +26,7 @@
   QUE CAMBIA RESPECTO A MYTH
     Myth tenia UNA coleccion repartida (los Eggs) y las demas checklists eran
     categorias donde un producto = una pieza. Aqui hay TRES colecciones
-    repartidas: EgolGear, Horned Beasts y Omegahorn aparecen cada una en varios
+    repartidas: EgolGear, Kakuzyu y Omegahorn aparecen cada una en varios
     productos distintos. Por eso el catalogo de piezas lleva un campo
     `collection` y el panel se genera recorriendolo, en vez de tener una rama
     especial para el gimmick y otra para las categorias.
@@ -61,7 +61,7 @@
 
   /* Colecciones secundarias: tonos suaves a proposito. Con varias barras en
      la cabecera, si todas gritan igual se pierde cual importa. */
-  --beast:     #d9a441;
+  --kakuzyu:     #d9a441;
   --omegahorn: #8f9bd6;
 
   /* Estados de producto */
@@ -132,7 +132,7 @@ body::before{
 /* Las dos del coleccionable principal mandan; las secundarias van apagadas. */
 .mini-stat--dx        .mini-stat__fill{ background:var(--dx); }
 .mini-stat--sg        .mini-stat__fill{ background:var(--sg); }
-.mini-stat--beast     .mini-stat__fill{ background:var(--beast); opacity:.65; }
+.mini-stat--kakuzyu     .mini-stat__fill{ background:var(--kakuzyu); opacity:.65; }
 .mini-stat--omegahorn .mini-stat__fill{ background:var(--omegahorn); opacity:.65; }
 .mini-stat--dx .mini-stat__label, .mini-stat--sg .mini-stat__label{ color:var(--text-dim); }
 
@@ -246,7 +246,7 @@ body::before{
 .badge--dx{ background:var(--dx-soft); color:var(--dx); border:1px solid rgba(232,72,79,.4); }
 .badge--sg{ background:var(--sg-soft); color:var(--sg); border:1px solid rgba(53,201,216,.4); }
 .badge--random{ background:rgba(143,155,214,.16); color:var(--omegahorn); border:1px solid rgba(143,155,214,.4); }
-.badge--promo{ background:rgba(217,164,65,.16); color:var(--beast); border:1px solid rgba(217,164,65,.4); }
+.badge--promo{ background:rgba(217,164,65,.16); color:var(--kakuzyu); border:1px solid rgba(217,164,65,.4); }
 /* Producto que pertenece a mas de una subcategoria */
 .badge--cross{ background:var(--surface-1); color:var(--text-dim); border:1px solid var(--border-strong); }
 
@@ -386,7 +386,7 @@ body::before{
 .panel__tab-n{ font-size:10px; opacity:.8; font-variant-numeric:tabular-nums; }
 .panel__tab[aria-selected="true"]{ color:var(--text); }
 .panel__tab--egolgear[aria-selected="true"]{ background:var(--dx-soft); border-color:var(--dx); color:var(--dx); }
-.panel__tab--beast[aria-selected="true"]{ background:rgba(217,164,65,.15); border-color:var(--beast); color:var(--beast); }
+.panel__tab--kakuzyu[aria-selected="true"]{ background:rgba(217,164,65,.15); border-color:var(--kakuzyu); color:var(--kakuzyu); }
 .panel__tab--omegahorn[aria-selected="true"]{ background:rgba(143,155,214,.15); border-color:var(--omegahorn); color:var(--omegahorn); }
 
 .panel__hint{ margin:0 0 10px; font-size:11px; color:var(--text-mute); line-height:1.45; }
@@ -568,7 +568,7 @@ const MONTH_ABBR  = ["ene","feb","mar","abr","may","jun",
 
    Myth tenia una sola coleccion repartida (los Eggs); sus otras checklists
    eran categorias donde un producto = una pieza, y bastaba contar productos.
-   Aqui no vale: el Horned Beast Enkaku sale en tres productos DX distintos y
+   Aqui no vale: el Kakuzyu Enkaku sale en tres productos DX distintos y
    el Omega Horn en otros tres. Son piezas repartidas igual que los EgolGear,
    asi que las tres usan el mismo mecanismo y se distinguen por `collection`.
 
@@ -582,8 +582,8 @@ const COLECCIONES = {
     label:"EgolGear", principal:true, slug:"egolgear",
     hint:"Marca un producto como <strong>Obtenido</strong> y sus EgolGear se cuentan aqui. DX y SG van por separado porque cada linea tiene piezas exclusivas."
   },
-  "horned-beast": {
-    label:"Horned Beasts", slug:"beast",
+  "kakuzyu": {
+    label:"Kakuzyu", slug:"kakuzyu",
     hint:"Los angeju en si. Coleccionable <strong>secundario</strong>, no el gimmick de la temporada. Se agrupan por criatura, no por como titule Bandai la caja."
   },
   "omegahorn": {
@@ -595,9 +595,9 @@ const COLECCIONES = {
 /* Familias dentro de una coleccion; el orden aqui es el orden en el panel. */
 const FAMILIAS = {
   "egolgear":        "EgolGear",
-  "egolgear-kakuju": "EgolGear con Horned Beast",
+  "egolgear-kakuju": "EgolGear con Kakuzyu",
   "zetsu-egolgear":  "Zetsu EgolGear",
-  "beast":           "Horned Beasts",
+  "kakuzyu":           "Kakuzyu",
   "device":          "Dispositivos"
 };
 
@@ -608,7 +608,7 @@ const LINES = { DX:"LINEA DX", SG:"LINEA SG" };
 
 /* Piezas que NO son coleccionables pero si determinan si un producto suelto
    sigue haciendo falta. Solo lo lee tools/audit.py para verificar el arbol de
-   `reemplaza`. En Omegahorn esta casi vacio a proposito: los Horned Beasts y
+   `reemplaza`. En Omegahorn esta casi vacio a proposito: los Kakuzyu y
    el Omega Horn SI son coleccionables, asi que van en `contains` y la
    auditoria deduce la cobertura sola comparando contenidos. */
 const COMPONENTES = {
@@ -683,9 +683,9 @@ const PIEZAS_CATALOG = [
   { id:"eg-promo-special", name:"EgolGear Limited Special Color", collection:"egolgear",
     type:"egolgear", line:"DX", meaning:"dorado · premio de campana" },
 
-  /* ---------- Los que tienen Horned Beast ---------- */
+  /* ---------- Los que tienen Kakuzyu ---------- */
   /* La familia la decide el bicho, no la caja: un gear entra aqui si pertenece
-     a un Horned Beast o si existe figura de ese Horned Beast.
+     a un Kakuzyu o si existe figura de ese Kakuzyu.
      Por eso Enkaku entra aunque no venga con su mecha —el DX MEGA FLAME HORN
      ENKAKU suelto es el unico sin gear y este llega con el Omega Horn—, y por
      eso Zetsu-Enkaku entra aunque lleve el prefijo Zetsu: los dos tienen
@@ -700,7 +700,7 @@ const PIEZAS_CATALOG = [
 
   /* ---------- Las versiones absolutas sin figura propia ---------- */
   /* En blanco y oro. Zetsu-Enkaku no esta aqui: tiene figura, asi que se va
-     con los de Horned Beast. */
+     con los de Kakuzyu. */
   /* Zetsu-Soukaku y Zetsu-Goukaku son piezas DISTINTAS: comprobado con la
      tabla oficial de セット内容, que marca la primera con セット品限定, y
      comparando el arte interior de las dos. Los dos bichos base existen. */
@@ -722,20 +722,20 @@ const PIEZAS_CATALOG = [
   { id:"sg-eg-denkaku-henishu", name:"Denkaku Hen'ishu EgolGear", collection:"egolgear", type:"egolgear", line:"SG", meaning:"変異種 · especie mutante" },
   { id:"sg-eg-hokaku-henishu",  name:"Hokaku Hen'ishu EgolGear",  collection:"egolgear", type:"egolgear", line:"SG", meaning:"変異種 · especie mutante" },
 
-  /* ======================= HORNED BEASTS (secundario) ======================= */
-  /* Los bichos en si. Se titulan "Horned Beast" en las fichas de ahora, pero
+  /* ======================= KAKUZYUS (secundario) ======================= */
+  /* Los bichos en si. Se titulan "Kakuzyu" en las fichas de ahora, pero
      el prefijo puede no acompanar a variantes futuras: aqui se agrupa por
      criatura, no por como titule Bandai la caja.
      El Enkaku de soft vinyl NO entra: es una figura de vinilo de otra escala
      y otra linea, no el juguete DX ni el kit SG. */
-  { id:"hb-enkaku",       name:"Enkaku",       collection:"horned-beast", type:"beast", line:"DX" },
-  { id:"hb-zankaku",      name:"Zankaku",      collection:"horned-beast", type:"beast", line:"DX" },
-  { id:"hb-saikaku",      name:"Saikaku",      collection:"horned-beast", type:"beast", line:"DX" },
-  { id:"hb-hikaku",       name:"Hikaku",       collection:"horned-beast", type:"beast", line:"DX" },
-  { id:"hb-goukaku",      name:"Goukaku",      collection:"horned-beast", type:"beast", line:"DX" },
-  { id:"hb-zetsu-enkaku", name:"Zetsu-Enkaku", collection:"horned-beast", type:"beast", line:"DX" },
+  { id:"kz-enkaku",       name:"Enkaku",       collection:"kakuzyu", type:"kakuzyu", line:"DX" },
+  { id:"kz-zankaku",      name:"Zankaku",      collection:"kakuzyu", type:"kakuzyu", line:"DX" },
+  { id:"kz-saikaku",      name:"Saikaku",      collection:"kakuzyu", type:"kakuzyu", line:"DX" },
+  { id:"kz-hikaku",       name:"Hikaku",       collection:"kakuzyu", type:"kakuzyu", line:"DX" },
+  { id:"kz-goukaku",      name:"Goukaku",      collection:"kakuzyu", type:"kakuzyu", line:"DX" },
+  { id:"kz-zetsu-enkaku", name:"Zetsu-Enkaku", collection:"kakuzyu", type:"kakuzyu", line:"DX" },
   /* El de Minipla es un model kit de tres cajas, no el DX de 350 mm. */
-  { id:"hb-sg-enkaku",    name:"Enkaku",       collection:"horned-beast", type:"beast", line:"SG", meaning:"model kit, cajas 1+2+3" },
+  { id:"kz-sg-enkaku",    name:"Enkaku",       collection:"kakuzyu", type:"kakuzyu", line:"SG", meaning:"model kit, cajas 1+2+3" },
 
   /* ======================= OMEGAHORN (secundario) ======================= */
   { id:"oh-omegahorn", name:"Omega Horn",          collection:"omegahorn", type:"device", line:"DX" },
@@ -807,7 +807,7 @@ const PRODUCTS = [
              "DX SETS/DX MEGA FLAME HORN ENKAKU＆OMEGAHORN SET/03.webp",
              "DX SETS/DX MEGA FLAME HORN ENKAKU＆OMEGAHORN SET/04.webp",
              "DX SETS/DX MEGA FLAME HORN ENKAKU＆OMEGAHORN SET/05.webp"],
-    contains:["hb-enkaku","oh-omegahorn","eg-enkaku"] },
+    contains:["kz-enkaku","oh-omegahorn","eg-enkaku"] },
   { id:"dx-enkaku-egolgear-set", title:"DX MEGA FLAME HORN ENKAKU ＆ OMEGAHORN EGOLGEAR SET", category:"DX SETS",
     date:"2026-07-25", dateType:"release", price:11330,
     reemplaza:["dx-enkaku-set"],
@@ -820,7 +820,7 @@ const PRODUCTS = [
              "DX SETS/DX MEGA FLAME HORN ENKAKU＆OMEGAHORN EGOLGEAR SET/05.webp",
              "DX SETS/DX MEGA FLAME HORN ENKAKU＆OMEGAHORN EGOLGEAR SET/06.webp",
              "DX SETS/DX MEGA FLAME HORN ENKAKU＆OMEGAHORN EGOLGEAR SET/07.webp"],
-    contains:["hb-enkaku",
+    contains:["kz-enkaku",
               "oh-omegahorn",
               "eg-enkaku",
               "eg-sakaku",
@@ -836,7 +836,7 @@ const PRODUCTS = [
              "DX MECHAS/DX MEGA FLAME HORN ENKAKU/02.webp",
              "DX MECHAS/DX MEGA FLAME HORN ENKAKU/03.webp",
              "DX MECHAS/DX MEGA FLAME HORN ENKAKU/04.webp"],
-    contains:["hb-enkaku"] },
+    contains:["kz-enkaku"] },
   { id:"dx-mecha-zankaku", title:"DX MEGA SLASH HORN ZANKAKU", category:"DX MECHAS",
     date:"2026-07-25", dateType:"release", price:4180,
     img:"DX MECHAS/DX MEGA SLASH HORN ZANKAKU/01-thumb.webp",
@@ -844,7 +844,7 @@ const PRODUCTS = [
              "DX MECHAS/DX MEGA SLASH HORN ZANKAKU/02.webp",
              "DX MECHAS/DX MEGA SLASH HORN ZANKAKU/03.webp",
              "DX MECHAS/DX MEGA SLASH HORN ZANKAKU/04.webp"],
-    contains:["hb-zankaku","eg-zankaku"] },
+    contains:["kz-zankaku","eg-zankaku"] },
   { id:"dx-mecha-goukaku", title:"DX MEGA BRAVE HORN GOKAKU", category:"DX MECHAS",
     date:"2026-07-25", dateType:"release", price:3850,
     img:"DX MECHAS/DX MEGA BRAVE HORN GOKAKU/01-thumb.webp",
@@ -852,7 +852,7 @@ const PRODUCTS = [
              "DX MECHAS/DX MEGA BRAVE HORN GOKAKU/02.webp",
              "DX MECHAS/DX MEGA BRAVE HORN GOKAKU/03.webp",
              "DX MECHAS/DX MEGA BRAVE HORN GOKAKU/04.webp"],
-    contains:["hb-goukaku","eg-goukaku"] },
+    contains:["kz-goukaku","eg-goukaku"] },
   { id:"dx-egolgear-set-01", title:"DX EGOLGEAR SET 01", category:"DX EGOLGEAR SETS",
     date:"2026-07-25", dateType:"release", price:1100,
     img:"DX EGOLGEAR SETS/DX EGOLGEAR SET 01/01-thumb.webp",
@@ -871,12 +871,12 @@ const PRODUCTS = [
              "DX EGOLGEAR SETS/DX EGOLGEAR SET 02/04.webp",
              "DX EGOLGEAR SETS/DX EGOLGEAR SET 02/05.webp"],
     contains:["eg-dokukaku","eg-moukaku"] },
-  { id:"sv-enkaku", title:"PROJECT RED SOFT VINYL SERIES: HORNED BEAST ENKAKU", category:"SOFTVINYL",
+  { id:"sv-enkaku", title:"PROJECT RED SOFT VINYL SERIES: KAKUZYU ENKAKU", category:"SOFTVINYL",
     date:"2026-07-25", dateType:"release", price:990,
-    img:"SOFTVINYL/SOFT VINYL HORNED BEAST ENKAKU/01-thumb.webp",
-    gallery:["SOFTVINYL/SOFT VINYL HORNED BEAST ENKAKU/01.webp",
-             "SOFTVINYL/SOFT VINYL HORNED BEAST ENKAKU/02.webp",
-             "SOFTVINYL/SOFT VINYL HORNED BEAST ENKAKU/03.webp"],
+    img:"SOFTVINYL/SOFT VINYL KAKUZYU ENKAKU/01-thumb.webp",
+    gallery:["SOFTVINYL/SOFT VINYL KAKUZYU ENKAKU/01.webp",
+             "SOFTVINYL/SOFT VINYL KAKUZYU ENKAKU/02.webp",
+             "SOFTVINYL/SOFT VINYL KAKUZYU ENKAKU/03.webp"],
     contains:[] },
   { id:"taf-captain", title:"TOKUSATSU ACTION FIGURE CAPTAIN OMEGAHORN", category:"TAF",
     date:"2026-07-25", dateType:"release", price:4840,
@@ -926,7 +926,7 @@ const PRODUCTS = [
              "DX MECHAS/DX MEGA CRUSH HORN SAIKAKU/02.webp",
              "DX MECHAS/DX MEGA CRUSH HORN SAIKAKU/03.webp",
              "DX MECHAS/DX MEGA CRUSH HORN SAIKAKU/04.webp"],
-    contains:["hb-saikaku","eg-saikaku"] },
+    contains:["kz-saikaku","eg-saikaku"] },
   { id:"dx-mecha-hikaku", title:"DX MEGA WING HORN HIKAKU", category:"DX MECHAS",
     date:"2026-08-29", dateType:"release", price:4950,
     img:"DX MECHAS/DX MEGA WING HORN HIKAKU/01-thumb.webp",
@@ -934,7 +934,7 @@ const PRODUCTS = [
              "DX MECHAS/DX MEGA WING HORN HIKAKU/02.webp",
              "DX MECHAS/DX MEGA WING HORN HIKAKU/03.webp",
              "DX MECHAS/DX MEGA WING HORN HIKAKU/04.webp"],
-    contains:["hb-hikaku","eg-hikaku"] },
+    contains:["kz-hikaku","eg-hikaku"] },
 
   /* =================== SEPTIEMBRE 2026 =================== */
   { id:"sg-yudo-enkaku", title:"YU-DO KAKUSEIHUNTER OMEGAHORN 01 ENKAKU", category:"SG YU-DO",
@@ -944,7 +944,7 @@ const PRODUCTS = [
              "SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 ENKAKU/02.webp",
              "SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 ENKAKU/03.webp",
              "SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 ENKAKU/04.webp"],
-    contains:["hb-sg-enkaku"] },
+    contains:["kz-sg-enkaku"] },
   { id:"sg-yudo-omegahorn", title:"YU-DO KAKUSEIHUNTER OMEGAHORN 01 OMEGAHORN", category:"SG YU-DO",
     date:"2026-09-01", dateType:"release", price:836, priceLabel:"2 cajas x 418",
     img:"SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 OMEGAHORN/01-thumb.webp",
@@ -971,7 +971,7 @@ const PRODUCTS = [
              "SG MINIPLA/MINIPLA KAKUSEIHUNTER OMEGAHORN 01 SET/06.webp",
              "SG MINIPLA/MINIPLA KAKUSEIHUNTER OMEGAHORN 01 SET/07.webp",
              "SG MINIPLA/MINIPLA KAKUSEIHUNTER OMEGAHORN 01 SET/08.webp"],
-    contains:["hb-sg-enkaku","oh-sg","sg-eg-enkaku"] },
+    contains:["kz-sg-enkaku","oh-sg","sg-eg-enkaku"] },
   { id:"promo-special-color", title:"PROJECT RED CHOCO CAMPAIGN — EGOLGEAR LIMITED SPECIAL COLOR", category:"EGOLGEAR PROMOCIONALES",
     date:"2026-09-01", dateType:"release", price:null, priceLabel:"Premio · 2.000 unidades",
     img:"EGOLGEAR PROMOCIONALES/PROJECT RED CHOCO CAMPAIGN-EgolGear Limited Special Color-thumb.webp",
@@ -982,7 +982,7 @@ const PRODUCTS = [
     alsoIn:["DX MECHAS"],
     img:"DX SETS/DX MEGA FLAME HORN ZETSU-ENKAKU ＆ OMEGAHORN ZETSU SET/01-thumb.webp",
     gallery:["DX SETS/DX MEGA FLAME HORN ZETSU-ENKAKU ＆ OMEGAHORN ZETSU SET/01.webp"],
-    contains:["hb-zetsu-enkaku","oh-absolute","eg-zetsu-enkaku"] },
+    contains:["kz-zetsu-enkaku","oh-absolute","eg-zetsu-enkaku"] },
   { id:"dx-egolgear-set-05", title:"DX EGOLGEAR SET 05", category:"DX EGOLGEAR SETS",
     date:"2026-09-05", dateType:"release", price:1100,
     img:"DX EGOLGEAR SETS/DX EGOLGEAR SET 05/01-thumb.webp",

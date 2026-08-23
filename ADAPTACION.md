@@ -79,9 +79,9 @@ un producto = una pieza. En Omegahorn no:
 
 | Pieza secundaria | Aparece en |
 |---|---|
-| Horned Beast Enkaku | `DX MEGA FLAME HORN ENKAKU` · `ENKAKU ＆ OMEGAHORN SET` · `EGOLGEAR SET` |
+| Kakuzyu Enkaku | `DX MEGA FLAME HORN ENKAKU` · `ENKAKU ＆ OMEGAHORN SET` · `EGOLGEAR SET` |
 | Omega Horn | `DX OMEGAHORN` · `ENKAKU ＆ OMEGAHORN SET` · `EGOLGEAR SET` |
-| Horned Beast Enkaku (SG) | `YU-DO … ENKAKU` · `MINIPLA … SET` |
+| Kakuzyu Enkaku (SG) | `YU-DO … ENKAKU` · `MINIPLA … SET` |
 
 Son piezas repartidas entre productos, exactamente como los EgolGear. Necesitan
 el mecanismo **(a)**, no el **(b)**.
@@ -93,7 +93,7 @@ Generalizar `EGGS_CATALOG` a un `PIEZAS_CATALOG` con un campo `collection`:
 ```js
 const COLECCIONES = {
   "egolgear":     { label:"EgolGear",      principal:true },
-  "horned-beast": { label:"Horned Beasts" },
+  "kakuzyu": { label:"Kakuzyu" },
   "omegahorn":    { label:"Omegahorn" }
 };
 ```
@@ -118,7 +118,7 @@ porque para ellos una pieza es una pieza.
 **Cuidado con la cabecera.** Tres colecciones × dos líneas son seis barras, y el
 §3 de la plantilla avisa de que con seis barras gritando igual se pierde cuál
 importa. Propuesta: EgolGear DX y SG con los colores fuertes y barra propia;
-Horned Beasts y Omegahorn en una sola barra cada una, sin partir por línea, en
+Kakuzyu y Omegahorn en una sola barra cada una, sin partir por línea, en
 tonos suaves.
 
 ---
@@ -136,7 +136,7 @@ Todo esto vive en el Bloque 1 y es lo único que se reescribe.
 | `EGGS_TYPES` | 5 tipos de Eggs | `egolgear` · `egolgear-kakuju` · `zetsu-egolgear` |
 | `EGGS_LINES` | `{DX, SG}` | igual |
 | `COMPONENTES` | Drivers y Buckles | **probablemente vacío** — ver §6 |
-| `CHECKLIST_TABS` | Eggs + 4 categorías | EgolGear · Horned Beasts · Omegahorn |
+| `CHECKLIST_TABS` | Eggs + 4 categorías | EgolGear · Kakuzyu · Omegahorn |
 | `PRODUCT_CHECKLISTS` | TAF, SO-DO, Buckles, Vinyl | **ninguna de momento** — TAF y SOFTVINYL tienen 1 producto cada una |
 | `STATES` | pending/reserved/owned | igual |
 | `CURRENCY` | ¥ / ja-JP | igual |
@@ -170,13 +170,13 @@ una lotería.
 
 **`COMPONENTES` se queda casi vacío, y es una mejora.** En Myth existía porque
 Drivers y Buckles no eran Eggs y la auditoría no podía deducir la cobertura sin
-ellos. En Omegahorn los Horned Beasts y el Omega Horn **sí** son coleccionables,
+ellos. En Omegahorn los Kakuzyu y el Omega Horn **sí** son coleccionables,
 así que van en `contains` y la auditoría 3b deduce la cadena de Enkaku sola:
 
 ```
-DX MEGA FLAME HORN ENKAKU  {beast-enkaku}
+DX MEGA FLAME HORN ENKAKU  {kakuzyu-enkaku}
 DX OMEGAHORN               {omegahorn, egolgear-enkaku}
-  ⊂ ENKAKU ＆ OMEGAHORN SET  {beast-enkaku, omegahorn, egolgear-enkaku}
+  ⊂ ENKAKU ＆ OMEGAHORN SET  {kakuzyu-enkaku, omegahorn, egolgear-enkaku}
     ⊂ EGOLGEAR SET           {… + 5 gears}
 ```
 
