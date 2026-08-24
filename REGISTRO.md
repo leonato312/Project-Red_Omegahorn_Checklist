@@ -5,7 +5,8 @@ capturas en `<CATEGORÍA>/FICHA/`, cotejadas contra las páginas oficiales de
 Bandai (`toy.bandai.co.jp` y `bandai.co.jp/candy`).
 
 Este archivo es **de esta serie**. Lo que sirve para cualquier otra está en
-`PROJECT-RED.md`, y cómo funciona el motor, en `ADAPTACION.md`.
+`PROJECT-RED.md`, cómo funciona el motor en `ADAPTACION.md`, y el registro del
+proceso con sus tropiezos en `BITACORA.md`.
 
 Se mantiene al día: cada decisión de nomenclatura que se cierre se anota aquí,
 para que nadie la deshaga después creyendo que era una errata.

@@ -16,10 +16,18 @@ imágenes— y está recogido aquí. Lo que no sobrevive es su estructura de dat
 
 Este documento se copia al repositorio de cada serie nueva y se adapta.
 
-Los otros dos que acompañan a una serie: **`ADAPTACION.md`** explica cómo está
-construido el motor por dentro y por qué se separó del de Myth —se lee cuando
-haya que tocarlo, no para arrancar—, y **`REGISTRO.md`** guarda los datos
-recopilados y las decisiones de esa serie en concreto.
+Los otros tres que acompañan a una serie:
+
+| Documento | Qué contiene | Cuándo se lee |
+|---|---|---|
+| **`PROJECT-RED.md`** | las reglas | al arrancar *(este)* |
+| **`BITACORA.md`** | el proceso y los errores que costaron tiempo | **antes de arrancar** |
+| **`ADAPTACION.md`** | cómo está construido el motor y por qué | cuando haya que tocarlo |
+| **`REGISTRO.md`** | los datos y decisiones de esa serie | al cargar cada wave |
+
+La bitácora no repite las reglas: cuenta en qué orden se hizo Omegahorn y qué
+salió mal. Media docena de las correcciones que recoge se evitan solo con
+saber que existen.
 
 ---
 

@@ -12,7 +12,8 @@ Documento de dos caras:
   decidir si algo se generaliza o se copia.
 
 **Para arrancar una serie nueva no se lee esto, se lee `PROJECT-RED.md`**, que
-ya parte de Omegahorn. Esto es el porqué; aquello es el cómo.
+ya parte de Omegahorn. Esto es el porqué; aquello es el cómo. Y en
+`BITACORA.md` está el qué salió mal.
 
 Base del análisis: `D:\DG\Kamen Rider_Myth` — `index.html` (2.261 líneas),
 `tools/` (3 scripts, 498 líneas), `.gitignore` y la estructura en disco.
