@@ -242,6 +242,11 @@ publica como cierto un día que nos inventamos: septiembre llegó a anunciar «2
 tandas: días 1 · 5» con un día 1 que no existía. **Un dato inventado para que el
 motor funcione tiene que estar marcado como inventado.**
 
+**Convención para el ancla: el día 15**, que es la fecha habitual cuando Bandai
+anuncia solo el mes. Deja el producto a mitad de mes en vez de empujarlo al día
+1, que lo colocaba por delante de lanzamientos ya confirmados. Sigue siendo un
+marcador —la tarjeta muestra N/D igual—, pero es un marcador que no desordena.
+
 ### `CATEGORY_BADGE` — el distintivo se declara, no se deduce
 
 ```js
@@ -674,7 +679,7 @@ el progreso desde `contains`.
 |---|---|
 | `egolgear` | 17 — los doce de los sets, Enkaku no, los cuatro del REPLICA SET y el promocional |
 | `egolgear-kakuju` | 6 — Enkaku, Zetsu-Enkaku, Zankaku, Saikaku, Hikaku, Goukaku |
-| `zetsu-egolgear` | 2 — Zetsu-Soukaku y Zetsu-Goukaku |
+| `zetsu-egolgear` | 2 — Zetsu-Soukaku y Zetsu-Gokaku |
 
 **EgolGear SG (8).** Los del `SG EGOLGEAR RANDOM BOX 01`: Enkaku, Denkaku,
 Ninkaku, Roukaku, Soukaku, Hokaku y los dos `Hen'ishu`. Cuatro repiten nombre de
@@ -697,11 +702,11 @@ internos a la vez.
 **Los tres `Zetsu-` no van juntos.** La familia `egolgear-kakuju` la decide el
 bicho, no la caja: entra un gear si pertenece a un Kakuzyu **del que existe
 figura**. Zetsu-Enkaku tiene figura, así que se va con los de Kakuzyu;
-Zetsu-Soukaku y Zetsu-Goukaku no la tienen y se quedan solos. Si Bandai saca el
+Zetsu-Soukaku y Zetsu-Gokaku no la tienen y se quedan solos. Si Bandai saca el
 mecha de Soukaku, esa pieza migra sola de familia — que es la ventaja de definir
 por criterio.
 
-**Zetsu-Soukaku y Zetsu-Goukaku son piezas distintas.** Aguantó tres rondas de
+**Zetsu-Soukaku y Zetsu-Gokaku son piezas distintas.** Aguantó tres rondas de
 comprobación: la tabla oficial de セット内容 del EGOLGEAR SET nombra
 **ゼツソウカク** y le pone el sello セット品限定; el arte interior de las dos
 piezas blancas no se parece —cresta dorada y dos colmillos curvos frente a un
@@ -738,6 +743,16 @@ un contenido garantizado como una lotería.
 el SET de Minipla: **el SET no descuenta, solo ahorra la búsqueda.** Ese cuadre
 es lo que confirma que la cuenta está bien.
 
+**`Zetsu-Gokaku`, sin vocal larga.** Es la única pieza donde la wiki oficial
+gana a la lista de contenidos de Bandai, que escribe `Zetsugoukaku`. Decisión
+tomada a la vista de las dos fuentes.
+
+**Ojo con la inconsistencia que deja, y es deliberada:** el bicho base sigue
+siendo **`Goukaku`** —con u—, porque ahí Bandai lo escribe así en la descripción
+**y** en la lista de contenidos, y solo lo recorta en el título en mayúsculas
+`DX MEGA BRAVE HORN GOKAKU`. La evidencia es distinta para cada pieza, así que
+las grafías son distintas. No es una errata a medio corregir.
+
 **El accesorio «Omega Horn» del TAF no cuenta.** Es pieza de figura a escala, no
 el juguete.
 
@@ -770,8 +785,9 @@ con `alsoIn:["DX MECHAS"]`.
 ### 7.5 Fechas sin día
 
 Cinco productos de septiembre llevan `dateExact:false`: los tres yu-dō, el SET
-de Minipla y el promocional. Muestran **N/D** y septiembre se rotula «Día 5 · 5
-sin fecha». La campaña del premio cierra el **2027/03/31**.
+de Minipla y el promocional. Su ancla es **2026-09-15** por la convención de
+arriba; la tarjeta muestra **N/D** y septiembre se rotula «Día 5 · 5 sin fecha».
+La campaña del premio cierra el **2027/03/31**.
 
 ### 7.6 Fuentes de esta serie
 

@@ -746,7 +746,7 @@ const PIEZAS_CATALOG = [
      Por eso Enkaku entra aunque no venga con su mecha —el DX MEGA FLAME HORN
      ENKAKU suelto es el unico sin gear y este llega con el Omega Horn—, y por
      eso Zetsu-Enkaku entra aunque lleve el prefijo Zetsu: los dos tienen
-     figura. Zetsu-Soukaku y Zetsu-Goukaku no la tienen, asi que se quedan en
+     figura. Zetsu-Soukaku y Zetsu-Gokaku no la tienen, asi que se quedan en
      su propia familia. */
   { id:"eg-enkaku",   name:"Enkaku EgolGear",   collection:"egolgear", type:"egolgear-kakuju", line:"DX" },
   { id:"eg-zetsu-enkaku", name:"Zetsu-Enkaku EgolGear", collection:"egolgear", type:"egolgear-kakuju", line:"DX" },
@@ -758,11 +758,11 @@ const PIEZAS_CATALOG = [
   /* ---------- Las versiones absolutas sin figura propia ---------- */
   /* En blanco y oro. Zetsu-Enkaku no esta aqui: tiene figura, asi que se va
      con los de Kakuzyu. */
-  /* Zetsu-Soukaku y Zetsu-Goukaku son piezas DISTINTAS: comprobado con la
+  /* Zetsu-Soukaku y Zetsu-Gokaku son piezas DISTINTAS: comprobado con la
      tabla oficial de セット内容, que marca la primera con セット品限定, y
      comparando el arte interior de las dos. Los dos bichos base existen. */
   { id:"eg-zetsu-soukaku", name:"Zetsu-Soukaku EgolGear", collection:"egolgear", type:"zetsu-egolgear", line:"DX", meaning:"exclusivo del EGOLGEAR SET" },
-  { id:"eg-zetsu-goukaku", name:"Zetsu-Goukaku EgolGear", collection:"egolgear", type:"zetsu-egolgear", line:"DX", meaning:"Absolute Hard Horn" },
+  { id:"eg-zetsu-gokaku", name:"Zetsu-Gokaku EgolGear", collection:"egolgear", type:"zetsu-egolgear", line:"DX", meaning:"Absolute Hard Horn" },
 
   /* ======================= EGOLGEAR · LINEA SG ======================= */
   /* Los ocho del SG EGOLGEAR RANDOM BOX 01. Cuatro repiten nombre de bicho
@@ -825,6 +825,10 @@ const PIEZAS_CATALOG = [
                   falta para colocar el producto en su acordeon, pero la
                   tarjeta muestra "N/D" en vez de inventarse un dia, y ese dia
                   no cuenta como tanda ni alimenta la cuenta atras.
+                  Convencion para el ancla: el DIA 15, que es la fecha habitual
+                  cuando Bandai anuncia solo el mes. Deja el producto a mitad
+                  de mes en vez de empujarlo al dia 1, que lo colocaba antes
+                  que lanzamientos ya confirmados.
      price     -> yenes con impuestos, o null si no hay
      priceLabel-> OPCIONAL. Matiza o sustituye al precio.
      alsoIn    -> OPCIONAL. Otras subcategorias donde tambien se lista. Sigue
@@ -1002,7 +1006,7 @@ const PRODUCTS = [
 
   /* =================== SEPTIEMBRE 2026 =================== */
   { id:"sg-yudo-enkaku", title:"YU-DO KAKUSEIHUNTER OMEGAHORN 01 ENKAKU", category:"SG YU-DO",
-    date:"2026-09-01", dateType:"release", dateExact:false, price:1254, priceLabel:"3 cajas x 418",
+    date:"2026-09-15", dateType:"release", dateExact:false, price:1254, priceLabel:"3 cajas x 418",
     img:"SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 ENKAKU/01-thumb.webp",
     gallery:["SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 ENKAKU/01.webp",
              "SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 ENKAKU/02.webp",
@@ -1010,20 +1014,20 @@ const PRODUCTS = [
              "SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 ENKAKU/04.webp"],
     contains:["kz-sg-enkaku"] },
   { id:"sg-yudo-omegahorn", title:"YU-DO KAKUSEIHUNTER OMEGAHORN 01 OMEGAHORN", category:"SG YU-DO",
-    date:"2026-09-01", dateType:"release", dateExact:false, price:836, priceLabel:"2 cajas x 418",
+    date:"2026-09-15", dateType:"release", dateExact:false, price:836, priceLabel:"2 cajas x 418",
     img:"SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 OMEGAHORN/01-thumb.webp",
     gallery:["SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 OMEGAHORN/01.webp",
              "SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 OMEGAHORN/02.webp",
              "SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 OMEGAHORN/03.webp"],
     contains:["oh-sg","sg-eg-enkaku"] },
   { id:"sg-yudo-captain", title:"YU-DO KAKUSEIHUNTER OMEGAHORN 01 CAPTAIN OMEGAHORN", category:"SG YU-DO",
-    date:"2026-09-01", dateType:"release", dateExact:false, price:418,
+    date:"2026-09-15", dateType:"release", dateExact:false, price:418,
     img:"SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 CAPTAIN OMEGAHORN/01-thumb.webp",
     gallery:["SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 CAPTAIN OMEGAHORN/01.webp",
              "SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 CAPTAIN OMEGAHORN/02.webp"],
     contains:[] },
   { id:"sg-minipla-set", title:"MINIPLA KAKUSEIHUNTER OMEGAHORN 01 SET", category:"SG MINIPLA",
-    date:"2026-09-01", dateType:"release", dateExact:false, price:2508,
+    date:"2026-09-15", dateType:"release", dateExact:false, price:2508,
     reemplaza:["sg-yudo-enkaku","sg-yudo-omegahorn","sg-yudo-captain"],
     img:"SG MINIPLA/MINIPLA KAKUSEIHUNTER OMEGAHORN 01 SET/PACKAGE-thumb.webp",
     gallery:["SG MINIPLA/MINIPLA KAKUSEIHUNTER OMEGAHORN 01 SET/PACKAGE.webp",
@@ -1037,7 +1041,7 @@ const PRODUCTS = [
              "SG MINIPLA/MINIPLA KAKUSEIHUNTER OMEGAHORN 01 SET/08.webp"],
     contains:["kz-sg-enkaku","oh-sg","sg-eg-enkaku"] },
   { id:"promo-special-color", title:"PROJECT RED CHOCO CAMPAIGN — EGOLGEAR LIMITED SPECIAL COLOR", category:"EGOLGEAR PROMOCIONALES",
-    date:"2026-09-01", dateType:"release", dateExact:false, price:null, priceLabel:"Premio · 2.000 unidades",
+    date:"2026-09-15", dateType:"release", dateExact:false, price:null, priceLabel:"Premio · 2.000 unidades",
     img:"EGOLGEAR PROMOCIONALES/PROJECT RED CHOCO CAMPAIGN-EgolGear Limited Special Color-thumb.webp",
     gallery:["EGOLGEAR PROMOCIONALES/PROJECT RED CHOCO CAMPAIGN-EgolGear Limited Special Color.webp"],
     contains:["eg-promo-special"] },
@@ -1072,7 +1076,7 @@ const PRODUCTS = [
     img:"DX SETS/OMEGAHORN REPLICA ＆ EGOLGEAR SET/01-thumb.webp",
     gallery:["DX SETS/OMEGAHORN REPLICA ＆ EGOLGEAR SET/01.webp"],
     contains:["oh-replica",
-              "eg-zetsu-goukaku",
+              "eg-zetsu-gokaku",
               "eg-bikaku",
               "eg-gaikaku",
               "eg-rinkaku",
