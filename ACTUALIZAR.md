@@ -1,182 +1,151 @@
-# Actualización pendiente — Kakusei Hunter Omegahorn
+# Actualización — Kakusei Hunter Omegahorn
 
-**Este documento es una tarea, no documentación.** Se aplica, se verifica y
-**se borra**, junto con los archivos que deja obsoletos.
+> **Esto es una guía, no un parche.** No lo apliques al pie de la letra: las
+> cifras y los nombres son de Gavan Infinity, y algunas cosas aquí **no te
+> tocan**. Lee el §3 antes de tocar nada.
+>
+> **Y no es el destino final.** El encargo de verdad está en el §5: fundir toda
+> tu documentación en **un solo md**, que es lo que heredará el próximo
+> repositorio.
 
-Viene de lo aprendido montando **Gavan Infinity**, la serie siguiente. Nada de
-lo que hay aquí es de Gavan: son cosas de uso general que se descubrieron allí y
-que este repositorio necesita.
-
-> **Adáptalo a Omegahorn.** Las tablas llevan los valores de esta serie ya
-> calculados, pero **revísalos** antes de pegarlos: son mi lectura de tu
-> `CATEGORY_ORDER`, no una verdad comprobada contra las cajas.
-
----
-
-## 1. Lo que ya está copiado en el repositorio
-
-| Archivo | Estado | Qué hacer |
-|---|---|---|
-| `tools/check_urls.py` | **copiado y probado aquí** | nada, ya funciona |
-| `PROJECT-RED.md` | **sustituido** por la versión nueva | leer los §§2, 5, 6 y 10 |
-
-`check_urls.py` se corrió en seco en este repositorio: **126 rutas, 0
-discrepancias de mayúsculas.** Confirma lo que ya sabías por haber pedido las
-rutas al servidor, pero ahora se comprueba en segundos y sin publicar.
-
-### Por qué hacía falta
-
-`audit.py` usa `os.path.exists`, que **en Windows no distingue mayúsculas**: una
-ruta mal capitalizada pasa la auditoría en local y da 404 publicada. Tu propio
-`PROJECT-RED.md` §4 dice que la auditoría no puede detectarlo. Ahora sí.
-
-```bash
-python tools/check_urls.py
-python tools/check_urls.py --servidor https://leonato312.github.io/Project-Red_Omegahorn_Checklist
-```
-
-**No lo canalices**: `| tail` se come el código de salida y un fallo pasa por
-bueno. Usa `${PIPESTATUS[0]}`.
+Sustituye a la versión anterior de este archivo, que ya está aplicada.
 
 ---
 
-## 2. Lo que hay que aplicar a mano en `index.html`
+## 1. Lo que ha cambiado en Gavan Infinity
 
-### 2.1 El distintivo de línea está mal en tres categorías
-
-En la línea 1366:
-
-```js
-const isSG = p.category.startsWith("SG");
-```
-
-y en la 1375:
-
-```js
-isSG ? '<span class="badge badge--sg">SG</span>' : '<span class="badge badge--dx">DX</span>',
-```
-
-Todo lo que no empiece por `SG` recibe **DX**. De tus nueve categorías,
-**tres no son DX**: el `TOKUSATSU ACTION FIGURE` no es DX, el soft vinyl tampoco,
-y el promocional es un premio de campaña.
-
-**Sustituye** las dos líneas y añade el mapa al Bloque 1:
-
-```js
-/* Distintivo de linea que lleva la tarjeta, declarado por categoria.
-   Sin entrada, sin distintivo: mejor nada que una linea equivocada. */
-const CATEGORY_BADGE = {
-  "DX SETS":"DX", "DX MECHAS":"DX", "DX EGOLGEAR SETS":"DX",
-  "SG MINIPLA":"SG", "SG YU-DO":"SG", "SG RANDOM BOX":"SG"
-};
-```
-
-```js
-const linea   = CATEGORY_BADGE[p.category] || "";
-const isPromo = p.category === "EGOLGEAR PROMOCIONALES";
-```
-
-```js
-linea ? `<span class="badge badge--${esc(linea.toLowerCase())}">${esc(linea)}</span>` : "",
-```
-
-**Quedan sin distintivo a propósito:** `TAF`, `SOFTVINYL` y
-`EGOLGEAR PROMOCIONALES`.
-
-### 2.2 `reservas`: aquí sí tienes dónde usarlo
-
-Un campo opcional del producto que pinta una línea bajo el precio:
-
-```js
-reservas:"cierre de solicitudes: 31 mar 2027",
-```
-
-**Tu promocional lo necesita.** El `REGISTRO.md` §6.3 dice que la campaña de la
-Choco cierra el **2027/03/31**, y ese dato hoy solo vive en el registro: la
-tarjeta no lo dice. Es información accionable —si se te pasa, no lo consigues— y
-ahora tiene dónde ir.
-
-El CSS y el punto exacto donde se pinta están en `PROJECT-RED.md` §2. El campo
-`exclusiva` que lo acompaña solo hace falta si aparecen exclusivas de P-Bandai;
-hoy no tienes.
-
-### 2.3 `LINE_LABEL`: no lo necesitas
-
-Solo hace falta si una clave de `LINES` es compuesta. Las tuyas son `DX` y `SG`.
-**Ignóralo.**
-
----
-
-## 3. Lo que la plantilla nueva trae y te conviene leer
-
-`PROJECT-RED.md` ha crecido de 452 a 665 líneas. Lo nuevo:
-
-| § | Qué |
+| Qué | En una línea |
 |---|---|
-| Cabecera | el punto de partida pasa a ser **Gavan Infinity**, con el porqué de cada cambio de base |
-| **§2** | los tres enganches nuevos y **cuántas líneas caben en la cabecera** |
-| **§5** | **de dónde salen las imágenes**: nueve fuentes, qué aporta cada una y sus trampas |
-| §6 | cuatro herramientas en vez de tres, con `check_urls.py` |
-| §10 | el paso 7 apunta al §5, y recuerda repetir `build_all.py` tras regenerar el catálogo |
-
-El §5 es el que más te va a servir en la próxima wave: el CDN de Akamai por
-número de modelo, las cajas de HobbySearch con el sufijo `p`, el geobloqueo de
-P-Bandai y cómo rodearlo, y la advertencia de que **el CDN devuelve 200 a
-cualquier número de modelo, sea de la serie que sea**.
+| **Un solo md por repositorio** | los cinco documentos se fundieron en `Gavan-Infinity.md` |
+| **La checklist se pliega por línea** | 129 piezas en un scroll eran 152 elementos |
+| **Las reediciones son versiones, no piezas** | y la referencia lleva `@` siempre |
+| **Colección contra familia** | la familia solo ordena dentro de una línea |
+| **El límite de barras de la cabecera hay que medirlo** | el que estaba escrito era falso |
 
 ---
 
-## 4. Verificar antes de dar por bueno
+## 2. Lo que sí te toca, con tus propios números
+
+Tu catálogo son **44 piezas** en tres colecciones —`egolgear` 33, `kakuzyu` 7,
+`omegahorn` 4— sobre dos líneas, DX y SG. Eso cambia qué te sirve de esta lista.
+
+### 2.1 Colección contra familia — la regla que te confirma
+
+**Si dos grupos se compran por separado y no comparten línea, son colecciones
+distintas.** La familia solo ordena dentro de una misma línea.
+
+Tú ya lo hiciste bien: `kakuzyu` y `omegahorn` son colecciones propias, no
+familias de `egolgear`. Gavan tuvo que aprenderlo tarde — los Gavarion Blade
+empezaron como familia y hubo que sacarlos, porque agrupando primero por línea
+quedaban repartidos entre tres y no había forma de verlos juntos.
+
+**Lo que sí conviene comprobar:** una colección con una sola familia dibuja un
+encabezado que repite su propio nombre y no organiza nada. Con `kakuzyu` a 7
+piezas y `omegahorn` a 4, míralo: si cada una tiene una sola familia, ese
+encabezado sobra.
+
+### 2.2 Las reediciones, si las tienes
+
+**Ninguna de tus 44 piezas declara `variants` hoy.** Merece una revisión: si una
+pieza salió reeditada por otro canal —un premio, un furoku, un color exclusivo—
+y está como entrada aparte, está compitiendo en el contador con su original.
+Infla el denominador y deja la línea clavada para siempre por algo que no se
+compra.
+
+Va como `variants` de la pieza base, y **basta con tener una versión para que
+cuente**. En Gavan eso bajó la línea DX de 98 a 94.
+
+Si lo haces, dos avisos:
+
+- **La referencia lleva `@` siempre** cuando la pieza tiene versiones, también
+  `@std`. Desnuda parece declarar la pieza y declara una versión.
+- **Tu `audit.py` sí parsea el catálogo de piezas**, como el de Gavan. Su lector
+  corta en la primera llave de cierre, que en una pieza con `variants` es la de
+  `{id:"std", …}`, y la sub-variante casa como si fuera una pieza. **Arréglalo
+  antes**, exigiendo `name` detrás de `id` con un **lookahead** —consumirlo deja
+  el cuerpo sin el campo y revienta igual—. Y al comprobarlo, mira que salgan
+  los mismos ids **y los mismos campos**, no solo los ids.
+
+### 2.3 Plegar la checklist por línea
+
+Con 33 piezas en la principal sobre dos líneas estás por debajo del umbral donde
+esto se vuelve urgente. **Anótalo para la próxima wave:** si una colección pasa
+de unas 40 piezas, pliégala por línea desde el principio, con la misma máquina
+del acordeón de meses. Cerrada debe seguir mostrando nombre, contador y barra.
+
+### 2.4 La comprobación que le falta a la auditoría
+
+Avisa de un tipo usado sin etiqueta, pero no del caso contrario: **una familia
+declarada que ya ninguna pieza usa**. Como no dibuja nada, se queda en el mapa
+para siempre sin que nada la delate. Aviso en BAJO.
+
+### 2.5 El límite de la cabecera
+
+La tabla que decía que la séptima barra envuelve casi siempre **era falsa**:
+medido, siete caben a 1280 px. Lo que sí fallaba era la banda entre el
+breakpoint del responsive y 1280, donde quedaba una barra huérfana en segunda
+fila.
+
+Tú tienes cuatro barras y margen de sobra, así que no te corre prisa. La lección
+que sí te llevas: **ese número describe el ancho de *tus* rótulos, no los de
+otra serie. Mídelo.**
+
+---
+
+## 3. Lo que NO te toca
+
+- **`CATEGORY_BADGE`, `reservas`.** Ya venían en la actualización anterior.
+- **`LINE_LABEL`.** Tus claves de línea son `DX` y `SG`, de una palabra.
+- **Las cinco líneas y las siete familias de Gavan.** Son suyas.
+
+---
+
+## 4. Verificar
 
 ```bash
-python tools/audit.py          # debe seguir sin incidencias
-python tools/check_urls.py     # 126 rutas, 0 discrepancias
+python tools/audit.py
+python tools/check_urls.py
 ```
 
-Y en el navegador: **una tarjeta de TAF ya no debe decir «DX»**, y las de
-`DX MECHAS` y `SG YU-DO` deben seguir bien.
+Y **ejecuta la lógica, no la leas**: marca una caja en el navegador, recarga, y
+comprueba que la checklist dice lo mismo.
+
+Aviso ganado por las malas: **las transiciones CSS no avanzan en una pestaña en
+segundo plano.** Si un acordeón parece no abrirse, descarta eso antes de buscar
+el fallo en tu CSS.
 
 ---
 
-## 5. Qué borrar al terminar
+## 5. El encargo de verdad: un solo md
 
-### La `PROJECT-RED.md` vieja
+Hoy tienes `ADAPTACION.md`, `BITACORA.md`, `REGISTRO.md`, `PROJECT-RED.md` y
+este archivo. Se solapan, y mantener varios es cómo se desincronizan.
 
-**Ya está sustituida**, no hay nada que borrar a mano. Pero si guardaste copia
-en algún sitio, tírala: mantener dos plantillas es cómo se desincronizan.
+**Fúndelos en un único documento llamado `Omegahorn.md`** (o como quieras
+referirte a esa conversación), que sea el punto de entrada para cualquier
+actualización, mejora o investigación. Lo que debe llevar dentro:
 
-### Este archivo
+1. Qué es esto y cómo se mantiene.
+2. El motor: estructura, la regla de oro del estado, el modelo de datos.
+3. De dónde salen los datos y las imágenes, con sus trampas.
+4. Qué se decidió en Omegahorn **y por qué** — que las piezas de una caja
+   sorpresa van como entradas separadas y nunca como variantes, que es tu
+   aportación y sigue vigente en Gavan.
+5. Lo aprendido: los errores y lo que se probó y no funcionó.
 
-`ACTUALIZAR.md` se borra cuando los puntos 1 a 4 estén hechos y verificados.
+**Escríbelo para heredarse.** La serie siguiente copia ese archivo, lo renombra
+y sustituye la parte que es solo tuya. Todo lo demás debe servirle tal cual.
 
-### Lo que NO se borra
-
-- **`ADAPTACION.md`** y **`BITACORA.md`**: son la historia de Omegahorn, no una
-  copia de nada. Gavan Infinity tiene los suyos, distintos.
-- **`REGISTRO.md`**: tus datos.
-
----
-
-## 6. Una corrección que le debo a este repositorio
-
-Al leerlo para arrancar Gavan Infinity encontré dos cosas desfasadas en
-`REGISTRO.md`, y no las toqué porque no era mi repositorio:
-
-- El **§11 «Lo que falta traer de Myth»** dice que faltan `index.html`, `tools/`
-  y `.gitignore`. Los tres están desde hace tiempo.
-- El **§9, fila 8** da la clave de `localStorage` por pendiente, y la tabla de
-  decisiones cerradas justo debajo ya la fija en `omegahorn-catalog-v1`.
-
-Son dos párrafos. Si alguien lee ese registro dentro de seis meses, van a
-confundirle.
+Y borra al terminar: `PROJECT-RED.md`, `ACTUALIZAR.md`, y `ADAPTACION.md`,
+`BITACORA.md` y `REGISTRO.md` una vez volcados. **Si queda un `.md` suelto en la
+raíz, no es un segundo documento: es algo pendiente de bajar y borrar.**
 
 ---
 
-## 7. Un dato que Gavan Infinity le devuelve a Omegahorn
+## 6. Un dato que sigue en pie
 
-El premio de la **PROJECT R.E.D. Choco Campaign** es **la misma pieza física** en
-las dos series: una cara Gavan Infinity y otra Captain Omegahorn.
-
-Tu copia es la buena —`1798x1012`— y la de la wiki está a `300x564`. Gavan
-Infinity la tomó prestada de aquí, no al revés. Queda anotado por si alguna vez
-te preguntas por qué esa foto aparece en dos repositorios: **es el mismo objeto**.
+El premio de la **PROJECT R.E.D. Choco Campaign** es **la misma pieza física**
+en las dos series: una cara Gavan Infinity y otra Captain Omegahorn. Tu copia es
+la buena —`1798x1012`— frente a los `300x564` de la wiki. Gavan la tomó prestada
+de aquí. Que quede escrito en tu md final: no es una foto duplicada por error,
+es el mismo objeto.
