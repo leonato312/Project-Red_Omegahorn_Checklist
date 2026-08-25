@@ -83,7 +83,14 @@ for m in re.finditer(r'\{ id:"([a-z0-9-]+)", title:"([^"]*)", category:"([^"]*)"
 
 bloque_piezas = s_html[s_html.index('const PIEZAS_CATALOG'):s_html.index('BLOQUE 3')]
 piezas = {}
-for m in re.finditer(r'\{\s*id:"([a-z0-9\'-]+)"(.*?)\}', bloque_piezas, re.S):
+# El lookahead de `name:` es lo que separa una PIEZA de una sub-variante. Una
+# pieza con `variants` lleva dentro objetos {id:"std", label:"..."}: el cuerpo
+# no-avaro corta en la primera llave de cierre, que es la de la variante, y sin
+# este filtro la siguiente casaba como si fuera una pieza mas.
+# Tiene que ser lookahead y NO consumo: si se consume `name:`, el cuerpo se
+# queda sin ese campo y el re.search de aqui abajo revienta.
+for m in re.finditer(r'\{\s*id:"([a-z0-9\'-]+)"\s*,\s*(?=name:)(.*?)\}',
+                     bloque_piezas, re.S):
     pid, cuerpo = m.groups()
     piezas[pid] = {
         'name': re.search(r'name:"([^"]*)"', cuerpo).group(1),
@@ -167,9 +174,14 @@ for x in huerfanas:
     flag('ALTO', x, 'un producto la declara en `contains` pero no existe en PIEZAS_CATALOG')
 for x in sin_fuente:
     flag('MEDIO', x, 'pieza que ningun producto trae: nunca se podra marcar')
-sin_fam = sorted(set(p['type'] for p in piezas.values()) - familias)
+tipos_usados = set(p['type'] for p in piezas.values())
+sin_fam = sorted(tipos_usados - familias)
 for t in sin_fam:
     flag('MEDIO', t, 'familia usada por alguna pieza pero sin etiqueta en FAMILIAS')
+# El caso contrario: una familia que quedo en el mapa y ya no usa nadie. Como no
+# dibuja nada, no hay nada que la delate y se queda ahi para siempre.
+for t in sorted(familias - tipos_usados):
+    flag('BAJO', t, 'familia declarada en FAMILIAS que ninguna pieza usa')
 
 for col in sorted(set(p['collection'] for p in piezas.values())):
     porlinea = {}

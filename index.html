@@ -582,6 +582,23 @@ const CATEGORY_ORDER = [
   "EGOLGEAR PROMOCIONALES"
 ];
 
+/* Distintivo de linea que lleva la tarjeta, declarado por categoria.
+   Antes se deducia con `category.startsWith("SG")`, y todo lo que no empezara
+   por SG recibia "DX". Con dos lineas de juguete colaba, pero TAF y SOFTVINYL
+   no son ninguna de las dos y salian etiquetadas como DX: la tarjeta mentia.
+   Una categoria sin entrada aqui no lleva distintivo, que es mejor que llevar
+   uno equivocado. */
+const CATEGORY_BADGE = {
+  "DX SETS":          "DX",
+  "DX MECHAS":        "DX",
+  "DX EGOLGEAR SETS": "DX",
+  "SG MINIPLA":       "SG",
+  "SG YU-DO":         "SG",
+  "SG RANDOM BOX":    "SG"
+  /* TAF, SOFTVINYL y EGOLGEAR PROMOCIONALES no llevan: son lineas propias.
+     El promocional ya se distingue con su chapa de "Premio". */
+};
+
 /* Subcategorias cuyo contenido es sorpresa -> muestran "Ver posibles contenidos".
    SG YU-DO NO entra: sus cajas llevan el numero impreso fuera
    (この箱の中には ① が入っています), asi que se eligen. Tratar un contenido
@@ -1205,6 +1222,11 @@ function progress(col, line, owned){
   return { got, total: items.length, pct: items.length ? got / items.length * 100 : 0 };
 }
 
+/* Familias distintas que usa una coleccion, mirando la coleccion entera y no
+   solo una linea: si dentro de SG hay una sola pero la coleccion tiene cuatro,
+   el encabezado sigue diciendo algo. */
+const familiasDe = col => new Set(piezasDe(col).map(x => x.type));
+
 /* Lineas en las que una coleccion tiene piezas, en el orden de LINES. */
 const lineasDe = col => Object.keys(LINES).filter(l => piezasDe(col, l).length);
 
@@ -1363,7 +1385,7 @@ function cardHTML(p, inCategory){
   const st       = getProductState(p.id);
   const owned    = ownedVariantSet();
   const isRandom = RANDOM_BOX_CATEGORIES.includes(p.category);
-  const isSG     = p.category.startsWith("SG");
+  const linea    = CATEGORY_BADGE[p.category] || "";
   const isPromo  = p.category === "EGOLGEAR PROMOCIONALES";
   const price    = formatPrice(p.price);
   const otras    = categoriesOf(p).filter(c => c !== inCategory);
@@ -1372,7 +1394,7 @@ function cardHTML(p, inCategory){
   const domId    = "card-" + p.id + "--" + inCategory.replace(/\s+/g, "-").toLowerCase();
 
   const badges = [
-    isSG ? '<span class="badge badge--sg">SG</span>' : '<span class="badge badge--dx">DX</span>',
+    linea ? `<span class="badge badge--${linea.toLowerCase()}">${esc(linea)}</span>` : "",
     isRandom ? '<span class="badge badge--random">Random</span>' : "",
     isPromo  ? '<span class="badge badge--promo">Premio</span>' : "",
     otras.length ? `<span class="badge badge--cross" title="Tambien listado en ${esc(otras.join(", "))}">+ ${esc(otras.join(" / "))}</span>` : ""
@@ -1566,6 +1588,10 @@ function miniStatHTML(label, pr, slug){
 
 /* Una coleccion: se agrupa por linea y dentro por familia. */
 function coleccionHTML(col, owned){
+  /* Con una sola familia, su encabezado repite el nombre de la coleccion y no
+     agrupa nada: el contador que mostraria ya esta en la barra de la linea. */
+  const conEncabezado = familiasDe(col).size > 1;
+
   return lineasDe(col).map(line => {
     const pr = progress(col, line, owned);
 
@@ -1578,12 +1604,13 @@ function coleccionHTML(col, owned){
       if(!visible.length) return "";
 
       const gotN = all.filter(x => piezaStatus(x, owned) !== "missing").length;
-      return `
-        <div class="group">
+      const cabecera = conEncabezado ? `
           <div class="group__head">
             <span>${esc(typeLabel)}</span>
             <span class="group__n">${gotN}/${all.length}</span>
-          </div>
+          </div>` : "";
+      return `
+        <div class="group">${cabecera}
           ${visible.map(x => piezaItemHTML(x, owned)).join("")}
         </div>`;
     }).join("");
