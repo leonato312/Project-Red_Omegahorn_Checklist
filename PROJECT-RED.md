@@ -2,17 +2,24 @@
 
 Cómo levantar la checklist de una serie nueva de Project Red.
 
-**El punto de partida es Omegahorn, no Myth.** La primera versión de esta
-plantilla salía de Kamen Rider Myth, y al montar Omegahorn quedó claro que
-Kamen Rider y Project Red se parecen menos de lo que parecía: Myth tenía **una**
-colección repartida y las demás checklists eran categorías donde un producto era
-una pieza; Omegahorn tiene **tres** colecciones repartidas y ninguna encaja en
-ese molde. El motor de Omegahorn generaliza eso, así que copiarlo ahorra la
-reescritura entera.
+**El punto de partida es Gavan Infinity.** La plantilla ha cambiado de base dos
+veces, y las dos por el mismo motivo: la serie nueva no cabía en el molde de la
+anterior.
 
-Del sistema de Myth sobrevive todo lo que era acierto de fondo —el mes como
-categoría raíz, la checklist derivada, la cobertura transitiva, el trato de las
-imágenes— y está recogido aquí. Lo que no sobrevive es su estructura de datos.
+| Base | Por qué se abandonó |
+|---|---|
+| Myth | tenía **una** colección repartida; las demás checklists eran categorías donde un producto era una pieza |
+| Omegahorn | generalizó a **varias** colecciones repartidas, pero solo conocía **dos líneas**, DX y SG |
+| **Gavan Infinity** | seis líneas, cinco canales de venta y exclusivas de Premium Bandai |
+
+De Omegahorn sobrevive el motor entero. Lo que añade Gavan Infinity son tres
+enganches que ninguna serie anterior necesitaba y que **toda serie futura va a
+necesitar**: el distintivo de línea declarado por categoría, los campos de
+exclusiva y ventana de reservas, y el rótulo corto de línea. Están en el §2.
+
+De Myth sobrevive lo que era acierto de fondo —el mes como categoría raíz, la
+checklist derivada, la cobertura transitiva, el trato de las imágenes— y está
+recogido aquí. Lo que no sobrevive es su estructura de datos.
 
 Este documento se copia al repositorio de cada serie nueva y se adapta.
 
@@ -150,6 +157,75 @@ una colección no toca la lógica.
 `date` es **la única fuente de verdad temporal**; el mes se deriva de ella al
 cargar. Guardar mes y fecha por separado los deja desincronizarse.
 
+### Los tres enganches que añadió Gavan Infinity
+
+Ninguna serie anterior los necesitaba y toda serie futura va a necesitarlos.
+Los tres viven en el Bloque 1 salvo la línea que los consume.
+
+**`CATEGORY_BADGE` — el distintivo de línea, declarado y no deducido.**
+
+El motor sacaba el distintivo de la tarjeta de `p.category.startsWith("SG")`, y
+todo lo demás recibía «DX». Con dos líneas colaba; en cuanto hay una categoría
+que no es de ninguna —`TAF`, `SHF`, `SOFTVINYL`, un premio— la tarjeta miente.
+En Myth eso etiqueta seis de doce categorías como DX sin serlo.
+
+```js
+const CATEGORY_BADGE = {
+  "DX SETS":"DX", "SG MINIPLA":"SG", "GP GASHAPON":"GP", …
+};
+```
+
+**Una categoría sin entrada no lleva distintivo.** Mejor nada que una línea
+equivocada. Y la tarjeta lo consume así:
+
+```js
+const linea = CATEGORY_BADGE[p.category] || "";
+…
+linea ? `<span class="badge badge--${esc(linea.toLowerCase().replace(/\s+/g,""))}">${esc(linea)}</span>` : "",
+```
+
+**`exclusiva` y `reservas` — Premium Bandai no tiene fecha de tienda.**
+
+Sus fichas dan «Reservations open / closed» y ninguna fecha de salida. Dos
+campos opcionales del producto:
+
+```js
+exclusiva:"Premium Bandai",          // distintivo propio
+reservas:"6 jul - 4 oct 2026",       // línea bajo el precio
+```
+
+**`exclusiva` va aparte de `dateType` a propósito.** Son dos hechos distintos:
+el día que un producto de tienda salga con reserva, tenerlos fundidos obliga a
+deshacerlo.
+
+Y la decisión de fondo: **`date` es la fecha de ENTREGA, no la de reserva.** La
+pregunta que sostiene la página es *cuándo llega*. Un producto que se entrega en
+marzo de 2027 no pinta nada en el acordeón de julio de 2026, que es cuando abrió
+el plazo. La ventana va en `reservas`, que es donde no estorba.
+
+**`LINE_LABEL` — claves sin espacios, rótulos con ellos.**
+
+La clave de `LINES` hace de clase CSS (`line.toLowerCase()`), así que no admite
+espacios. Con `DX` y `SG` daba igual; con una clave como `PLADELUXE` la cabecera
+sale «EMOLGEAR PLADELUXE», pegado.
+
+```js
+const LINE_LABEL = { PLADELUXE:"Pla Deluxe", MEMORIAL:"Memorial" };
+```
+
+Lo que no esté en el mapa usa su clave tal cual, así que las líneas de una sola
+palabra no se enteran. **Solo hace falta si alguna clave es compuesta.**
+
+### Cuántas líneas caben en la cabecera
+
+La colección principal se parte por línea en la cabecera y las secundarias van
+con una barra cada una. Con dos líneas y dos secundarias vas sobrado. **Con seis
+barras estás en el límite: caben en una fila a 1280 px y ni una más.**
+
+A partir de la séptima hay que dejar arriba solo las de la principal y ver el
+resto al abrir el panel, donde las solapas ya llevan contador. Eso sí es tocar
+el motor, así que **cuenta las líneas antes de escribir el catálogo**.
+
 ### Las cuatro reglas del modelo que más se prestan a error
 
 **Líneas separadas.** Si la serie tiene dos líneas que sacan piezas exclusivas
@@ -259,6 +335,122 @@ una hoja de despiece puede quedar por debajo de los 700 px del thumb y salir
 borroso de portada. Si la galería del producto trae la pieza montada a tamaño
 completo, esa es la portada.
 
+### De dónde salen las imágenes
+
+Ninguna serie tiene todas sus fotos en un solo sitio. Este es el orden en que
+conviene buscar, con lo que aporta cada fuente y con qué hay que tener cuidado.
+
+| Fuente | Para qué sirve |
+|---|---|
+| `toy.bandai.co.jp` | la ficha de producto: fotos, fecha, precio y contenidos |
+| **el CDN de Akamai** | fotos de cualquier producto, aunque su página no se pueda abrir |
+| `bandai.co.jp/candy` | la raíz de SG: shokugan, minipla, yu-dō |
+| `tamashiiweb.com` | S.H.Figuarts: datos buenos, fotos pequeñas |
+| `p-bandai.jp` | **geobloqueado**, ver abajo |
+| `1999.co.jp` | **las fotos de caja**, que Bandai no publica aparte |
+| `tokullectibles.com` | números de modelo, contenidos y banners |
+| la wiki de la serie | premios de campaña, que ninguna tienda vende |
+| el repositorio hermano | piezas de crossover |
+
+**1 · La ficha de Bandai.** Conviven dos hosts de imagen y hay que mirar los dos:
+
+```
+bandai-a.akamaihd.net/bc/img/model/xl/<nº modelo>_<n>.jpg   fichas antiguas
+assets-toy.bandai.co.jp/toy/ja/product/AAAA/MM/<hash>/<nombre>.jpg   nuevas
+```
+
+Con solo el primero se quedaron fuera la mitad de los productos de Gavan
+Infinity. Se enumera `_1`, `_2`… hasta el primer 404, y **se conserva el orden
+del documento**: es el de la galería oficial.
+
+**2 · El CDN de Akamai, por número de modelo. Es la llave maestra.** No está
+geobloqueado y responde aunque la página del producto no se pueda abrir. Basta
+el número:
+
+```
+bandai-a.akamaihd.net/bc/img/model/xl/1000247747_1.jpg
+```
+
+**Y aquí está la trampa más cara de esta serie: devuelve 200 a cualquier número
+válido, sea de la serie que sea.** Diez fotos de Omegahorn entraron en el
+catálogo de Gavan porque una tienda daba un número equivocado y la descarga
+«funcionó». **Abre siempre una imagen y mírala** antes de dar por buena una
+carpeta entera.
+
+**3 · Bandai Candy** es la raíz de SG. El buscador que funciona:
+
+```
+bandai.co.jp/candy/search/result.html?q=<término en japonés>
+```
+
+En la ficha, la galería propia son las imágenes que tienen pareja
+`-product-mobile`; las que solo aparecen como `-product-main` son miniaturas de
+otros productos. **Comprobado: sirve los mismos archivos que el CDN**, así que
+aporta datos —precio, fecha, contenidos— y no imágenes mejores. Aun así hay que
+ir: destapó un producto que ninguna otra fuente listaba.
+
+**4 · Tamashii Web** para S.H.Figuarts, `tamashiiweb.com/item/<n>`. Datos
+completos —precio, ventana de reservas, `セット内容`—, pero **sus fotos son las
+más pequeñas** (857×1200) y las fichas nuevas solo las publican en `.webp`.
+
+**5 · Premium Bandai está geobloqueado.** `p-bandai.jp` devuelve 302 a la
+portada internacional desde fuera de Japón, y `p-bandai.com/us` no distribuye las
+exclusivas japonesas. **La salida es el CDN**: el número de item de la URL de
+P-Bandai *es* el número de modelo.
+
+**6 · HobbySearch (`1999.co.jp`) es de donde salen las cajas.** Bandai no publica
+la foto del paquete por separado; HobbySearch sí:
+
+```
+www.1999.co.jp/itbig<NN>/<id>.jpg     miniatura de 224 px
+www.1999.co.jp/itbig<NN>/<id>b*.jpg   galería a 1200 px
+www.1999.co.jp/itbig<NN>/<id>p*.jpg   PAQUETE a 1200 px   <- esto
+```
+
+Son JPEG de verdad, aunque el navegador reciba `.webp` por negociación de
+contenido. **Su buscador tiene truco:** el parámetro de la URL que funciona es
+`searchkey=`, no `sw=`; con `sw=` devuelve el catálogo entero sin filtrar. Lo
+más simple es enviar el formulario y quedarse con la URL resultante.
+
+No stockea exclusivas de P-Bandai ni premios, así que para eso no lo mires.
+
+**7 · Tokullectibles** es una tienda Shopify, y su API sirve para tres cosas:
+
+```
+tokullectibles.com/products/<handle>.json
+tokullectibles.com/collections/<slug>/products.json?limit=250
+```
+
+- **Números de modelo de todo**, incluidos SG, GP, minipla y yu-dō. Con eso, el
+  CDN da las fotos. Es la vía más rápida para levantar una línea entera.
+- **Contenidos** en las descripciones, que a veces Bandai no lista.
+- **Banners promocionales** que Bandai no publica: se detectan porque su nombre
+  de archivo **no** sigue el patrón `<nº modelo>_<n>.jpg`.
+
+Dos avisos. **Sus copias de las fotos de Bandai son peores**: Shopify recomprime
+al subir, así que las mismas ocho imágenes no coincidían ni en un byte con las
+del CDN. Y **reutiliza una imagen genérica** en los productos de los que aún no
+tiene foto; se detecta porque el mismo nombre de archivo aparece en varios
+productos distintos. Esas no se descargan.
+
+Sus precios son de importación en dólares, no el PVP en yenes.
+
+**8 · La wiki de la serie** es la **única** fuente de los premios: campañas,
+máquinas de garra, bonos de ropa y regalos de revista. Ninguna tienda los vende.
+En Fandom, los nombres de archivo están en `data-image-name` y la URL base sirve
+el original. Ojo: a veces el original que subieron es pequeño.
+
+**9 · El repositorio de la serie hermana.** Si una pieza es un crossover, ya
+puede estar recopilada al otro lado y mejor. El premio de la Choco Campaign está
+en Omegahorn a 1798×1012 y en la wiki a 300×564.
+
+### Después de descargar, comprueba
+
+**Abre y decodifica todas las imágenes.** Un `PACKAGE.jpg` de esta serie llegó
+truncado —107.826 bytes en vez de 164.106— con **código 200**, y abría como
+imagen válida hasta que `build_all` intentó leer el último bloque. Ni el código
+de respuesta ni el tamaño bastan.
+
 ### Cinco trampas que costaron horas
 
 **No pongas `loading="lazy"` en las portadas.** Las tarjetas viven dentro de un
@@ -284,16 +476,32 @@ bajan a su propia fila y sí deben repartirse el espacio.
 
 ## 6. Herramientas
 
-Tres scripts de Python con Pillow como única dependencia:
+Cuatro scripts de Python con Pillow como única dependencia:
 
 | Script | Qué hace | Escribe |
 |---|---|---|
 | `audit.py` | Cruza `index.html` con el disco | nada |
 | `plan.py` | Muestra qué portada y galería saldrían | nada |
 | `build_all.py` | Genera los `.webp` y repunta el HTML | sí |
+| `check_urls.py` | Mayúsculas y rutas contra el servidor | nada |
 
-Los dos primeros son de solo lectura: **correrlos siempre antes**. `audit.py`
-sale con código 1 si hay algo en ALTO, así que se puede encadenar.
+Los tres de solo lectura se corren **siempre antes**. `audit.py` sale con código
+1 si hay algo en ALTO, así que se puede encadenar.
+
+### check_urls.py, y por qué hace falta
+
+`audit.py` comprueba las rutas con `os.path.exists`, que **en Windows no
+distingue mayúsculas**. Una ruta mal capitalizada pasa la auditoría en local y da
+404 publicada: es el fallo que el §4 llama «el más traicionero de todo el
+sistema», y la auditoría no puede verlo.
+
+`check_urls.py` compara **cada tramo de cada ruta contra el nombre real del
+directorio**, letra a letra, que es lo que hará el servidor. Y con
+`--servidor <URL>` pide las rutas al sitio publicado, que es la prueba
+definitiva.
+
+**No lo canalices.** `check_urls.py | tail -4` devuelve el código de salida de
+`tail`, no el suyo, y un fallo pasa por bueno. Usa `${PIPESTATUS[0]}`.
 
 `plan.py` mapea `id → carpeta` en `CARPETA` y `id → archivo` en `SUELTO`. Los
 productos de una sola imagen van en el segundo: en Myth no pasaban por las
@@ -409,8 +617,13 @@ Esto es lo que **no** se hereda. Responder antes de escribir una línea:
 7. Cargar waves: ficha → carpetas con fotos → `audit.py` → entradas en los dos
    arrays → registrar la carpeta en `CARPETA` de `plan.py` → `build_all.py` →
    `audit.py` otra vez.
+   **De dónde sacar las fotos de cada línea, en el §5.** No todas están en
+   `toy.bandai.co.jp`: las cajas salen de HobbySearch, SG de Bandai Candy, los
+   premios solo de la wiki y las exclusivas de P-Bandai solo del CDN.
+   **Y `build_all.py` se repite cada vez que se regenere el Bloque 3**: el
+   catálogo se escribe con rutas `.jpg` y es él quien las repunta a `.webp`.
 8. Repositorio público y Pages desde `main` / root. Comprobar las rutas contra
-   el servidor, no contra el disco.
+   el servidor con `check_urls.py --servidor`, no contra el disco.
 
 **Lo que hace falta de ti para empezar:** las respuestas del §9 y la primera
 tanda de fichas.
