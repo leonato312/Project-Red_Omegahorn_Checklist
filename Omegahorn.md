@@ -404,7 +404,35 @@ compara cada tramo contra el nombre real del directorio letra a letra.
 **Comprueba la resolución de origen antes de recortar.** Un panel recortado de
 una hoja de despiece puede quedar por debajo de los 700 px del thumb y salir
 borroso de portada. Si la galería del producto trae la pieza montada a tamaño
-completo, esa es la portada.
+completo, esa es la portada — mejor esa que un recorte de menos resolución.
+
+### Recortar una hoja de despiece: `crop_sheet.py`
+
+Bandai suele publicar el contenido de una caja sorpresa o de un model kit como
+una sola foto en rejilla —los «①②③» de una caja SG, el cuadro de セット内容 de
+un EGOLGEAR SET—. `tools/crop_sheet.py` la parte en archivos numerados.
+
+```bash
+# 1. Solo lectura: sugiere bandas limpias (gutter) y líneas oscuras (borde)
+python tools/crop_sheet.py detect "CATEGORIA/FICHA/hoja.jpg"
+
+# 2. Corte de verdad. --x/--y son la lista COMPLETA de límites, no puntos
+#    intermedios: si quieres llegar al borde de la imagen hay que incluirlo.
+python tools/crop_sheet.py crop "CATEGORIA/FICHA/hoja.jpg"     --x 199 602 1004 --y 39 410 780 1150     --out "CATEGORIA/PRODUCTO" --start 2
+```
+
+**La detección automática es orientativa, no definitiva.** En una foto de
+producto real los números de viñeta, los iconos y los bordes de las piezas son
+tan oscuros como las líneas de rejilla; `detect` estrecha las bandas
+candidatas, pero elegir el punto de corte sigue siendo cosa de mirar la imagen.
+Es justo lo que se hizo a mano para las hojas de `SG YU-DO`: la de seis cajas
+se cortó por sus líneas de rejilla (`--x 199 602 1004 --y 39 410 780 1150`, seis
+paneles de 403×371), y la de cuatro fotos se cortó por sus márgenes en blanco
+descartando el cuadrante de la caja con `--skip`.
+
+**`--skip` es para cuando la hoja mezcla el producto con algo que no quieres**,
+casi siempre la propia caja. Los índices son 0-based, en orden de lectura
+izquierda-derecha arriba-abajo.
 
 ### Cinco trampas de imagen que costaron horas
 
@@ -556,6 +584,7 @@ Tres scripts con Pillow como única dependencia, más uno de solo red.
 | `check_urls.py` | comprueba las rutas distinguiendo mayúsculas | nada |
 | `plan.py` | muestra qué portada y galería saldrían | nada |
 | `build_all.py` | genera los `.webp` y repunta el HTML | sí |
+| `crop_sheet.py` | parte una hoja de despiece en paneles numerados | sí (recortes) |
 
 Los de lectura van siempre antes. `audit.py` sale con código 1 si hay algo en
 ALTO, así que se puede encadenar.
