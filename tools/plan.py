@@ -51,6 +51,8 @@ CARPETA = {
 
  'sv-enkaku':               'SOFTVINYL/SOFT VINYL KAKUZYU ENKAKU',
  'taf-captain':             'TAF/TAF CAPTAIN OMEGAHORN',
+
+ 'gp-transform-set':        'GP GACHA/GP TRANSFORM-COMBINE ROLEPLAY OMEGAHORN',
 }
 
 # id -> archivo suelto (producto de una sola imagen, sin subcarpeta)

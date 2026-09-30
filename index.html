@@ -795,12 +795,18 @@ const PIEZAS_CATALOG = [
   { id:"kz-zetsu-enkaku", name:"Zetsu-Enkaku", collection:"kakuzyu", type:"kakuzyu", line:"DX" },
   /* El de Minipla es un model kit de tres cajas, no el DX de 350 mm. */
   { id:"kz-sg-enkaku",    name:"Enkaku",       collection:"kakuzyu", type:"kakuzyu", line:"SG", meaning:"model kit, cajas 1+2+3" },
+  /* Gashapon con transformacion y combinacion real -no es figura estatica
+     como el Soft Vinyl, por eso SI cuenta como linea propia (igual que SG). */
+  { id:"kz-gp-enkaku",    name:"Enkaku",       collection:"kakuzyu", type:"kakuzyu", line:"GP", meaning:"gashapon nariki" },
+  { id:"kz-gp-goukaku",   name:"Goukaku",      collection:"kakuzyu", type:"kakuzyu", line:"GP", meaning:"gashapon nariki" },
+  { id:"kz-gp-zankaku",   name:"Zankaku",      collection:"kakuzyu", type:"kakuzyu", line:"GP", meaning:"gashapon nariki" },
 
   /* ======================= OMEGAHORN (secundario) ======================= */
   { id:"oh-omegahorn", name:"Omega Horn",          collection:"omegahorn", type:"device", line:"DX" },
   { id:"oh-absolute",  name:"Omega Horn Absolute", collection:"omegahorn", type:"device", line:"DX" },
   { id:"oh-replica",   name:"Omega Horn Replica",  collection:"omegahorn", type:"device", line:"DX" },
-  { id:"oh-sg",        name:"Omega Horn",          collection:"omegahorn", type:"device", line:"SG", meaning:"model kit, cajas 4+5" }
+  { id:"oh-sg",        name:"Omega Horn",          collection:"omegahorn", type:"device", line:"SG", meaning:"model kit, cajas 4+5" },
+  { id:"oh-gp",        name:"Omega Horn",          collection:"omegahorn", type:"device", line:"GP", meaning:"gashapon nariki" }
 ];
 
 
@@ -1081,6 +1087,22 @@ const PRODUCTS = [
               "eg-gaikaku",
               "eg-rinkaku",
               "eg-gunkaku"] },
+
+  /* Capsula de gashapon: nariki/transformacion (no figura estatica). Todas
+     las piezas vienen juntas en un solo "set" por capsula -no es azar entre
+     tipos como los EgolGear random box-, asi que se declara como un unico
+     producto con las 4 piezas rastreables (Analyzer no cuenta, es el
+     aparato de transformacion, igual que en DX). */
+  { id:"gp-transform-set", title:"GP TRANSFORM-COMBINE ROLEPLAY OMEGAHORN", category:"GP GACHA",
+    date:"2026-09-01", dateType:"release", dateExact:false, price:400,
+    img:"GP GACHA/GP TRANSFORM-COMBINE ROLEPLAY OMEGAHORN/PACKAGE-thumb.webp",
+    gallery:["GP GACHA/GP TRANSFORM-COMBINE ROLEPLAY OMEGAHORN/PACKAGE.webp",
+             "GP GACHA/GP TRANSFORM-COMBINE ROLEPLAY OMEGAHORN/01.webp",
+             "GP GACHA/GP TRANSFORM-COMBINE ROLEPLAY OMEGAHORN/02.webp",
+             "GP GACHA/GP TRANSFORM-COMBINE ROLEPLAY OMEGAHORN/03.webp",
+             "GP GACHA/GP TRANSFORM-COMBINE ROLEPLAY OMEGAHORN/04.webp",
+             "GP GACHA/GP TRANSFORM-COMBINE ROLEPLAY OMEGAHORN/05.webp"],
+    contains:["oh-gp","kz-gp-enkaku","kz-gp-goukaku","kz-gp-zankaku"] },
 ];
 
 /* El mes del acordeon se deriva de la fecha. `date` es la unica fuente de
