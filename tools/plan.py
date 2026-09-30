@@ -42,6 +42,7 @@ CARPETA = {
  # ----------------------------------------------------------------- MECHA
  'dx-mecha-enkaku':         'MECHA/DX/DX MEGA FLAME HORN ENKAKU',
  'dx-mecha-kienkaku':       'MECHA/DX/DX MEGA MACHINE HORN KIENKAKU',
+ 'dx-mecha-hekikaku':       'MECHA/DX/DX MEGA WALL HORN HEKIKAKU',
  'dx-mecha-zankaku':        'MECHA/DX/DX MEGA SLASH HORN ZANKAKU',
  'dx-mecha-goukaku':        'MECHA/DX/DX MEGA BRAVE HORN GOKAKU',
  'dx-mecha-saikaku':        'MECHA/DX/DX MEGA CRUSH HORN SAIKAKU',
@@ -57,6 +58,7 @@ CARPETA = {
  'dx-egolgear-set-05':      'GIMMICK/DX/DX EGOLGEAR SET 05',
  'dx-egolgear-set-06':      'GIMMICK/DX/DX EGOLGEAR SET 06',
  'sg-random-box-01':        'GIMMICK/SG/SG EGOLGEAR RANDOM BOX 01',
+ 'gp-egolgear-01':          'GIMMICK/GP/GP EGOLGEAR 01',
 
  # --------------------------------------------------------- PROTAGONISTA
  'sg-yudo-captain':         'PROTAGONISTA/SG/YU-DO KAKUSEIHUNTER OMEGAHORN 01 CAPTAIN OMEGAHORN',

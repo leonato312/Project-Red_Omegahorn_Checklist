@@ -580,7 +580,7 @@ const CATEGORY_ORDER = [
   "PROTAGONISTA/TAF", "PROTAGONISTA/SG",
   "DISPOSITIVO/DX", "DISPOSITIVO/SG", "DISPOSITIVO/GP",
   "MECHA/DX", "MECHA/SG", "MECHA/SOFTVINYL",
-  "GIMMICK/DX", "GIMMICK/SG",
+  "GIMMICK/DX", "GIMMICK/SG", "GIMMICK/GP",
   /* Premios de campana y exclusivos. Procedencia rara: pueden no tener precio,
      pero todos tienen fecha. Una sola imagen, sin subcarpeta. */
   "GIMMICK/PROMOCIONALES"
@@ -612,6 +612,7 @@ const CATEGORY_BADGE = {
   "MECHA/SG":       "SG",
   "GIMMICK/DX":     "DX",
   "GIMMICK/SG":     "SG",
+  "GIMMICK/GP":     "GP",
   "PROTAGONISTA/SG":"SG"
   /* PROTAGONISTA/TAF, MECHA/SOFTVINYL y GIMMICK/PROMOCIONALES no llevan: son
      lineas propias sin otra procedencia con la que confundirse. El
@@ -622,7 +623,7 @@ const CATEGORY_BADGE = {
    MECHA/SG (antes SG YU-DO) NO entra: sus cajas llevan el numero impreso
    fuera (この箱の中には ① が入っています), asi que se eligen. Tratar un
    contenido garantizado como una loteria seria mentir en la tarjeta. */
-const RANDOM_BOX_CATEGORIES = ["GIMMICK/SG"];
+const RANDOM_BOX_CATEGORIES = ["GIMMICK/SG", "GIMMICK/GP"];
 
 /* Usado solo por formatDay() para la fecha en cada tarjeta. La pagina ya no
    agrupa por mes/wave: se agrupa por CATEGORIA, igual que Myth. */
@@ -671,7 +672,7 @@ const FAMILIAS = {
 /* Lineas de coleccion. DX y SG van separadas a proposito: son canales
    distintos y ninguna completa a la otra, asi que un "me faltan 3" que las
    mezcle no significaria nada. */
-const LINES = { DX:"LINEA DX", SG:"LINEA SG" };
+const LINES = { DX:"LINEA DX", SG:"LINEA SG", GP:"LINEA GP" };
 
 /* Piezas que NO son coleccionables pero si determinan si un producto suelto
    sigue haciendo falta. Solo lo lee tools/audit.py para verificar el arbol de
@@ -764,6 +765,7 @@ const PIEZAS_CATALOG = [
   { id:"eg-saikaku",  name:"Saikaku EgolGear",  collection:"egolgear", type:"egolgear-kakuju", line:"DX" },
   { id:"eg-hikaku",   name:"Hikaku EgolGear",   collection:"egolgear", type:"egolgear-kakuju", line:"DX" },
   { id:"eg-goukaku",  name:"Goukaku EgolGear",  collection:"egolgear", type:"egolgear-kakuju", line:"DX" },
+  { id:"eg-hekikaku", name:"Hekikaku EgolGear", collection:"egolgear", type:"egolgear-kakuju", line:"DX" },
 
   /* ---------- Las versiones absolutas sin figura propia ---------- */
   /* En blanco y oro. Zetsu-Enkaku no esta aqui: tiene figura, asi que se va
@@ -791,6 +793,20 @@ const PIEZAS_CATALOG = [
   { id:"sg-eg-denkaku-henishu", name:"Denkaku Hen'ishu EgolGear", collection:"egolgear", type:"egolgear-henishu", line:"SG", meaning:"変異種 · especie mutante" },
   { id:"sg-eg-hokaku-henishu",  name:"Hokaku Hen'ishu EgolGear",  collection:"egolgear", type:"egolgear-henishu", line:"SG", meaning:"変異種 · especie mutante" },
 
+  /* ======================= EGOLGEAR · LINEA GP ======================= */
+  /* Los ocho del gashapon GP EGOLGEAR 01. Molde y canal propios: el Enkaku de
+     esta capsula esta confirmado distinto del que trae el DX ENKAKU&OMEGAHORN
+     SET (la propia hoja de Bandai lo aclara), asi que no es variante de nada
+     y cuenta aparte, igual que los cuatro repetidos de SG. */
+  { id:"gp-eg-enkaku",           name:"Enkaku EgolGear",           collection:"egolgear", type:"egolgear-kakuju", line:"GP", meaning:"gashapon, molde distinto al del DX SET" },
+  { id:"gp-eg-meikaku",          name:"Meikaku EgolGear",          collection:"egolgear", type:"egolgear", line:"GP" },
+  { id:"gp-eg-tokkaku",          name:"Tokkaku EgolGear",          collection:"egolgear", type:"egolgear", line:"GP" },
+  { id:"gp-eg-tenkaku",          name:"Tenkaku EgolGear",          collection:"egolgear", type:"egolgear", line:"GP" },
+  { id:"gp-eg-jakaku",           name:"Jakaku EgolGear",           collection:"egolgear", type:"egolgear", line:"GP" },
+  { id:"gp-eg-jakaku-henishu",   name:"Jakaku Hen'ishu EgolGear",   collection:"egolgear", type:"egolgear-henishu", line:"GP", meaning:"変異種 · especie mutante" },
+  { id:"gp-eg-dokukaku-henishu", name:"Dokukaku Hen'ishu EgolGear", collection:"egolgear", type:"egolgear-henishu", line:"GP", meaning:"変異種 · especie mutante" },
+  { id:"gp-eg-hyokaku-henishu",  name:"Hyokaku Hen'ishu EgolGear",  collection:"egolgear", type:"egolgear-henishu", line:"GP", meaning:"変異種 · especie mutante" },
+
   /* ======================= KAKUZYUS (secundario) ======================= */
   /* Los bichos en si. Se titulan "Kakuzyu" en las fichas de ahora, pero
      el prefijo puede no acompanar a variantes futuras: aqui se agrupa por
@@ -804,6 +820,7 @@ const PIEZAS_CATALOG = [
   { id:"kz-goukaku",      name:"Goukaku",      collection:"kakuzyu", type:"kakuzyu", line:"DX" },
   { id:"kz-zetsu-enkaku", name:"Zetsu-Enkaku", collection:"kakuzyu", type:"kakuzyu", line:"DX" },
   { id:"kz-kienkaku",     name:"Kienkaku",     collection:"kakuzyu", type:"kakuzyu", line:"DX" },
+  { id:"kz-hekikaku",     name:"Hekikaku",     collection:"kakuzyu", type:"kakuzyu", line:"DX" },
   /* El de Minipla es un model kit de tres cajas, no el DX de 350 mm. */
   { id:"kz-sg-enkaku",    name:"Enkaku",       collection:"kakuzyu", type:"kakuzyu", line:"SG", meaning:"model kit, cajas 1+2+3" },
   /* Gashapon con transformacion y combinacion real -no es figura estatica
@@ -934,6 +951,17 @@ const PRODUCTS = [
     gallery:["MECHA/DX/DX MEGA MACHINE HORN KIENKAKU/01.webp",
              "MECHA/DX/DX MEGA MACHINE HORN KIENKAKU/02.webp"],
     contains:["kz-kienkaku"] },
+  /* Confirmado en toy.bandai.co.jp (01_21178): ficha oficial con fecha, precio
+     y las 4 fotos de producto. Trae su propio EgolGear -el unico de esta
+     tanda que llega con gear bundleado desde el lanzamiento-. */
+  { id:"dx-mecha-hekikaku", title:"DX MEGA WALL HORN HEKIKAKU", category:"MECHA/DX",
+    date:"2026-10-03", dateType:"release", price:4400,
+    img:"MECHA/DX/DX MEGA WALL HORN HEKIKAKU/01-thumb.webp",
+    gallery:["MECHA/DX/DX MEGA WALL HORN HEKIKAKU/01.webp",
+             "MECHA/DX/DX MEGA WALL HORN HEKIKAKU/02.webp",
+             "MECHA/DX/DX MEGA WALL HORN HEKIKAKU/03.webp",
+             "MECHA/DX/DX MEGA WALL HORN HEKIKAKU/04.webp"],
+    contains:["kz-hekikaku","eg-hekikaku"] },
   { id:"dx-mecha-zankaku", title:"DX MEGA SLASH HORN ZANKAKU", category:"MECHA/DX",
     date:"2026-07-25", dateType:"release", price:4180,
     img:"MECHA/DX/DX MEGA SLASH HORN ZANKAKU/01-thumb.webp",
@@ -1126,6 +1154,28 @@ const PRODUCTS = [
              "DISPOSITIVO/GP/GP TRANSFORM-COMBINE ROLEPLAY OMEGAHORN/04.webp",
              "DISPOSITIVO/GP/GP TRANSFORM-COMBINE ROLEPLAY OMEGAHORN/05.webp"],
     contains:["oh-gp","kz-gp-enkaku","kz-gp-goukaku","kz-gp-zankaku"] },
+
+  /* Gashapon de verdad: capsula ciega, un ejemplar por vuelta, 8 tipos. La
+     propia hoja de premio avisa "por como es la maquina, puede repetirse el
+     mismo articulo" -es RANDOM_BOX_CATEGORIES, como el SG EGOLGEAR RANDOM
+     BOX 01, con `contains` listando los 8 posibles-. Confirmado en
+     gashapon.jp (JAN 4582770096033000): 500 yen, 8 tipos, julio 2026 4a
+     semana -no hay dia exacto, ancla en el 25 como el resto de la wave-. */
+  { id:"gp-egolgear-01", title:"GP EGOLGEAR 01", category:"GIMMICK/GP",
+    date:"2026-07-25", dateType:"release", dateExact:false, price:500,
+    img:"GIMMICK/GP/GP EGOLGEAR 01/01-thumb.webp",
+    gallery:["GIMMICK/GP/GP EGOLGEAR 01/01.webp",
+             "GIMMICK/GP/GP EGOLGEAR 01/02.webp",
+             "GIMMICK/GP/GP EGOLGEAR 01/03.webp",
+             "GIMMICK/GP/GP EGOLGEAR 01/04.webp",
+             "GIMMICK/GP/GP EGOLGEAR 01/05.webp",
+             "GIMMICK/GP/GP EGOLGEAR 01/06.webp",
+             "GIMMICK/GP/GP EGOLGEAR 01/07.webp",
+             "GIMMICK/GP/GP EGOLGEAR 01/08.webp",
+             "GIMMICK/GP/GP EGOLGEAR 01/09.webp"],
+    contains:["gp-eg-enkaku","gp-eg-meikaku","gp-eg-tokkaku","gp-eg-tenkaku",
+              "gp-eg-jakaku","gp-eg-jakaku-henishu","gp-eg-dokukaku-henishu",
+              "gp-eg-hyokaku-henishu"] },
 ];
 
 
