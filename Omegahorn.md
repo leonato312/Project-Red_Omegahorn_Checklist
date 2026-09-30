@@ -837,13 +837,21 @@ real** — no se les crea carpeta ni se tocan `plan.py`/`PIEZAS_CATALOG`.
 | 角獣コレクションフィギュア — 6 pares: Enkaku&Denkaku, Zankaku&Dokkaku, Kienkaku&Hekikaku, Zetsuenkaku&Saikaku, Hikaku&Sakaku, Goukaku&Nekkaku | línea nueva, probablemente `MECHA/COLECCION` (figuritas ~2.5" pintadas, no el DX ni el Soft Vinyl) | ¥1.540 c/u | 2026-11-14 | confirmado "BANDAI TOYS" en GoodsMart |
 | (仮) ミニプラ 2弾 (Minipla Set 02) | DISPOSITIVO/SG | ¥4.000 | 2026-12-30 | revelado solo con texto ("文字のみBtoB解禁"), sin imagen |
 
-**Excluido, no es de esta serie ni es un SKU de Bandai:** "Project RED Snack
-Stocking & Emorgear Set" de Tokullectibles es un stocking navideño propio de
-la tienda que mete golosinas japonesas más un Emorgear de edición limitada —
-el Emorgear es coleccionable de **Gavan Infinity** (otra sub-línea de
-PROJECT R.E.D.), no un EgolGear de Omegahorn. Tampoco entran "Omegahorn Hunter
-Bundle" y "Omegahorn Researcher Bundle": paquetes de varios productos armados
-por la propia tienda, sin JAN ni ficha propia.
+**Corregido tras revisión del usuario:** el "Project RED Snack Stocking &
+Emorgear Set" de Tokullectibles **sí entra**, como `promo-xmas-boots` en
+`GIMMICK/PROMOCIONALES`. Es el mismo caso que `promo-special-color` (§7.3): en
+la fuente japonesa (「ハート PROJECT R.E.D.ブーツ 菓子詰め合せ」, confitería
+Heart, 26 oct 2026, ¥1.650) el premio es un エモルギア de **Gavan Infinity**, no
+un エゴルギア de Omegahorn — pero la pieza física comparte diseño con Captain
+Omegahorn (ambos personajes aparecen en el mismo gear), así que es un gimmick
+de verdad compartido entre las dos sub-líneas, no solo un empaquetado
+conjunto. Se cataloga como EgolGear por la misma practicidad que el premio de
+la Choco Campaign. Foto real confirmada en Tokullectibles (`177004-*.jpg`, no
+el placeholder genérico).
+
+**Excluido, no es un SKU de Bandai:** "Omegahorn Hunter Bundle" y "Omegahorn
+Researcher Bundle" — paquetes de varios productos armados por la propia
+tienda, sin JAN ni ficha propia.
 
 ### 7.6 Fuentes de esta serie
 

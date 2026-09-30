@@ -751,6 +751,16 @@ const PIEZAS_CATALOG = [
   { id:"eg-promo-special", name:"EgolGear Limited Special Color", collection:"egolgear",
     type:"egolgear", line:"DX", meaning:"dorado · premio de campana" },
 
+  /* Igual caso que el de arriba: en la fuente es un エモルギア de Gavan
+     Infinity ("PROJECT R.E.D.ブーツ 菓子詰め合せ" de la confiteria Heart,
+     10/26, con "ブーツ限定 エモルギア 2026クリスマス スペシャルコラボ ver."),
+     no un エゴルギア. Se cataloga como EgolGear por el mismo motivo de
+     practicidad. Ademas comparte diseno con Captain Omegahorn en la misma
+     pieza -gimmick compartido de verdad, no solo empaquetado junto-, asi que
+     encaja igual de bien aqui que en el repositorio de Gavan Infinity. */
+  { id:"eg-promo-xmas-boots", name:"EgolGear Xmas Boots Collab", collection:"egolgear",
+    type:"egolgear", line:"DX", meaning:"gris · exclusivo Heart Boots, comparte diseno con Gavan Infinity" },
+
   /* ---------- Los que tienen Kakuzyu ---------- */
   /* La familia la decide el bicho, no la caja: un gear entra aqui si pertenece
      a un Kakuzyu o si existe figura de ese Kakuzyu.
@@ -1102,6 +1112,15 @@ const PRODUCTS = [
     img:"GIMMICK/PROMOCIONALES/PROJECT RED CHOCO CAMPAIGN-EgolGear Limited Special Color-thumb.webp",
     gallery:["GIMMICK/PROMOCIONALES/PROJECT RED CHOCO CAMPAIGN-EgolGear Limited Special Color.webp"],
     contains:["eg-promo-special"] },
+  /* "PROJECT R.E.D.ブーツ 菓子詰め合せ" (confiteria Heart), 26 oct 2026,
+     1.650 yen -a diferencia del premio de arriba, este SI se compra directo,
+     no es sorteo-. Foto real de Tokullectibles (177004, no el placeholder
+     generico "IMAGE COMING SOON" que usan para lo no revelado). */
+  { id:"promo-xmas-boots", title:"PROJECT R.E.D. BOOTS CANDY ASSORTMENT — XMAS EMORGEAR COLLAB", category:"GIMMICK/PROMOCIONALES",
+    date:"2026-10-26", dateType:"release", price:1650,
+    img:"GIMMICK/PROMOCIONALES/PROJECT RED BOOTS CANDY-Xmas Emorgear Collab-thumb.webp",
+    gallery:["GIMMICK/PROMOCIONALES/PROJECT RED BOOTS CANDY-Xmas Emorgear Collab.webp"],
+    contains:["eg-promo-xmas-boots"] },
   { id:"dx-zetsu-enkaku-set", title:"DX MEGA FLAME HORN ZETSU-ENKAKU ＆ OMEGAHORN ZETSU SET", category:"DISPOSITIVO/DX",
     date:"2026-09-05", dateType:"release", price:9900,
     alsoIn:["MECHA/DX"],

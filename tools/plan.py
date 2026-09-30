@@ -69,6 +69,8 @@ CARPETA = {
 SUELTO = {
  'promo-special-color':
    'GIMMICK/PROMOCIONALES/PROJECT RED CHOCO CAMPAIGN-EgolGear Limited Special Color.png',
+ 'promo-xmas-boots':
+   'GIMMICK/PROMOCIONALES/PROJECT RED BOOTS CANDY-Xmas Emorgear Collab.jpg',
 }
 
 IMG_EXT = ('.jpg', '.jpeg', '.png')
