@@ -21,45 +21,52 @@ BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 HTML = os.path.join(BASE, 'index.html')
 
 # id de PRODUCTS -> carpeta relativa
+# Ordenado por CATEGORIA (Myth: PROTAGONISTA/DISPOSITIVO/MECHA/GIMMICK) y
+# dentro de cada una por LINEA (DX/SG/TAF/GP/SOFTVINYL). La categoria de un
+# producto mezclado sigue la regla de Myth: el dispositivo (equivalente al
+# Driver) gana sobre el mecha, y el EgolGear (equivalente al Gimmick) cede
+# ante los dos (Maestro 1 Myth §3.2, aplicado aqui por analogia).
 CARPETA = {
- 'dx-omegahorn':            'DX SETS/DX OMEGAHORN',
- 'dx-omegaanalyzer':        'DX SETS/DX OMEGAANALYZER',
- 'dx-enkaku-set':           'DX SETS/DX MEGA FLAME HORN ENKAKU＆OMEGAHORN SET',
- 'dx-enkaku-egolgear-set':  'DX SETS/DX MEGA FLAME HORN ENKAKU＆OMEGAHORN EGOLGEAR SET',
- # Cruzado: tambien tiene carpeta en DX MECHAS, pero sale por DX SETS.
- 'dx-zetsu-enkaku-set':     'DX SETS/DX MEGA FLAME HORN ZETSU-ENKAKU ＆ OMEGAHORN ZETSU SET',
- 'dx-replica-set':          'DX SETS/OMEGAHORN REPLICA ＆ EGOLGEAR SET',
+ # ------------------------------------------------------------ DISPOSITIVO
+ 'dx-omegahorn':            'DISPOSITIVO/DX/DX OMEGAHORN',
+ 'dx-omegaanalyzer':        'DISPOSITIVO/DX/DX OMEGAANALYZER',
+ 'dx-enkaku-set':           'DISPOSITIVO/DX/DX MEGA FLAME HORN ENKAKU＆OMEGAHORN SET',
+ 'dx-enkaku-egolgear-set':  'DISPOSITIVO/DX/DX MEGA FLAME HORN ENKAKU＆OMEGAHORN EGOLGEAR SET',
+ # Cruzado: tambien vive en MECHA (alsoIn), pero sale por DISPOSITIVO.
+ 'dx-zetsu-enkaku-set':     'DISPOSITIVO/DX/DX MEGA FLAME HORN ZETSU-ENKAKU ＆ OMEGAHORN ZETSU SET',
+ 'dx-replica-set':          'DISPOSITIVO/DX/OMEGAHORN REPLICA ＆ EGOLGEAR SET',
+ 'sg-minipla-set':          'DISPOSITIVO/SG/MINIPLA KAKUSEIHUNTER OMEGAHORN 01 SET',
+ 'sg-yudo-omegahorn':       'DISPOSITIVO/SG/YU-DO KAKUSEIHUNTER OMEGAHORN 01 OMEGAHORN',
+ 'gp-transform-set':        'DISPOSITIVO/GP/GP TRANSFORM-COMBINE ROLEPLAY OMEGAHORN',
 
- 'dx-mecha-enkaku':         'DX MECHAS/DX MEGA FLAME HORN ENKAKU',
- 'dx-mecha-kienkaku':       'DX MECHAS/DX MEGA MACHINE HORN KIENKAKU',
- 'dx-mecha-zankaku':        'DX MECHAS/DX MEGA SLASH HORN ZANKAKU',
- 'dx-mecha-goukaku':        'DX MECHAS/DX MEGA BRAVE HORN GOKAKU',
- 'dx-mecha-saikaku':        'DX MECHAS/DX MEGA CRUSH HORN SAIKAKU',
- 'dx-mecha-hikaku':         'DX MECHAS/DX MEGA WING HORN HIKAKU',
+ # ----------------------------------------------------------------- MECHA
+ 'dx-mecha-enkaku':         'MECHA/DX/DX MEGA FLAME HORN ENKAKU',
+ 'dx-mecha-kienkaku':       'MECHA/DX/DX MEGA MACHINE HORN KIENKAKU',
+ 'dx-mecha-zankaku':        'MECHA/DX/DX MEGA SLASH HORN ZANKAKU',
+ 'dx-mecha-goukaku':        'MECHA/DX/DX MEGA BRAVE HORN GOKAKU',
+ 'dx-mecha-saikaku':        'MECHA/DX/DX MEGA CRUSH HORN SAIKAKU',
+ 'dx-mecha-hikaku':         'MECHA/DX/DX MEGA WING HORN HIKAKU',
+ 'sg-yudo-enkaku':          'MECHA/SG/YU-DO KAKUSEIHUNTER OMEGAHORN 01 ENKAKU',
+ 'sv-enkaku':               'MECHA/SOFTVINYL/SOFT VINYL KAKUZYU ENKAKU',
 
- 'dx-egolgear-set-01':      'DX EGOLGEAR SETS/DX EGOLGEAR SET 01',
- 'dx-egolgear-set-02':      'DX EGOLGEAR SETS/DX EGOLGEAR SET 02',
- 'dx-egolgear-set-03':      'DX EGOLGEAR SETS/DX EGOLGEAR SET 03',
- 'dx-egolgear-set-04':      'DX EGOLGEAR SETS/DX EGOLGEAR SET 04',
- 'dx-egolgear-set-05':      'DX EGOLGEAR SETS/DX EGOLGEAR SET 05',
- 'dx-egolgear-set-06':      'DX EGOLGEAR SETS/DX EGOLGEAR SET 06',
+ # -------------------------------------------------------------- GIMMICK
+ 'dx-egolgear-set-01':      'GIMMICK/DX/DX EGOLGEAR SET 01',
+ 'dx-egolgear-set-02':      'GIMMICK/DX/DX EGOLGEAR SET 02',
+ 'dx-egolgear-set-03':      'GIMMICK/DX/DX EGOLGEAR SET 03',
+ 'dx-egolgear-set-04':      'GIMMICK/DX/DX EGOLGEAR SET 04',
+ 'dx-egolgear-set-05':      'GIMMICK/DX/DX EGOLGEAR SET 05',
+ 'dx-egolgear-set-06':      'GIMMICK/DX/DX EGOLGEAR SET 06',
+ 'sg-random-box-01':        'GIMMICK/SG/SG EGOLGEAR RANDOM BOX 01',
 
- 'sg-random-box-01':        'SG RANDOM BOX/SG EGOLGEAR RANDOM BOX 01',
- 'sg-minipla-set':          'SG MINIPLA/MINIPLA KAKUSEIHUNTER OMEGAHORN 01 SET',
- 'sg-yudo-enkaku':          'SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 ENKAKU',
- 'sg-yudo-omegahorn':       'SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 OMEGAHORN',
- 'sg-yudo-captain':         'SG YU-DO/YU-DO KAKUSEIHUNTER OMEGAHORN 01 CAPTAIN OMEGAHORN',
-
- 'sv-enkaku':               'SOFTVINYL/SOFT VINYL KAKUZYU ENKAKU',
- 'taf-captain':             'TAF/TAF CAPTAIN OMEGAHORN',
-
- 'gp-transform-set':        'GP GACHA/GP TRANSFORM-COMBINE ROLEPLAY OMEGAHORN',
+ # --------------------------------------------------------- PROTAGONISTA
+ 'sg-yudo-captain':         'PROTAGONISTA/SG/YU-DO KAKUSEIHUNTER OMEGAHORN 01 CAPTAIN OMEGAHORN',
+ 'taf-captain':             'PROTAGONISTA/TAF/TAF CAPTAIN OMEGAHORN',
 }
 
 # id -> archivo suelto (producto de una sola imagen, sin subcarpeta)
 SUELTO = {
  'promo-special-color':
-   'EGOLGEAR PROMOCIONALES/PROJECT RED CHOCO CAMPAIGN-EgolGear Limited Special Color.png',
+   'GIMMICK/PROMOCIONALES/PROJECT RED CHOCO CAMPAIGN-EgolGear Limited Special Color.png',
 }
 
 IMG_EXT = ('.jpg', '.jpeg', '.png')

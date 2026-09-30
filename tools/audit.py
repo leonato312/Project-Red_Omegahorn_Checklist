@@ -42,17 +42,40 @@ def orden(nombre):
     if stem.upper() == 'PACKAGE': return (0, 0)
     return (1, int(stem)) if stem.isdigit() else (2, 0)
 
-cats = sorted(d for d in os.listdir(BASE)
+def _subdirs(p):
+    return sorted(x for x in os.listdir(p)
+                  if os.path.isdir(os.path.join(p, x)) and x != FICHA_DIR)
+
+# El arbol tiene una LINEA intermedia entre la CATEGORIA y el producto
+# (p.ej. DISPOSITIVO/DX/DX OMEGAHORN): "cat", en todo lo de abajo, es en
+# realidad "CATEGORIA/LINEA". La ficha de referencia se mira una sola vez
+# por CATEGORIA (no se repite por linea).
+tops = sorted(d for d in os.listdir(BASE)
               if os.path.isdir(os.path.join(BASE, d))
               and not d.startswith('.') and d not in OMITIR)
+
+cats, cat_dir, ficha_por_top = [], {}, {}
+for top in tops:
+    tp = os.path.join(BASE, top)
+    fp = os.path.join(tp, FICHA_DIR)
+    ficha_por_top[top] = len([f for f in os.listdir(fp) if f.lower().endswith(IMG_EXT)]) \
+                         if os.path.isdir(fp) else 0
+    lineas = _subdirs(tp)
+    if not lineas:
+        cats.append(top)
+        cat_dir[top] = tp
+        continue
+    for ln in lineas:
+        cat = top + '/' + ln
+        cats.append(cat)
+        cat_dir[cat] = os.path.join(tp, ln)
+cats.sort()
 
 # ------------------------------------------------------------- inventario
 inv = {}
 for cat in cats:
-    d = os.path.join(BASE, cat)
-    fp = os.path.join(d, FICHA_DIR)
-    ficha = len([f for f in os.listdir(fp) if f.lower().endswith(IMG_EXT)]) \
-            if os.path.isdir(fp) else 0
+    d = cat_dir[cat]
+    top = cat.split('/', 1)[0]
     prods, sueltos = {}, []
     for x in sorted(os.listdir(d)):
         xp = os.path.join(d, x)
@@ -61,7 +84,7 @@ for cat in cats:
                               key=orden)
         elif os.path.isfile(xp) and x.lower().endswith(IMG_EXT):
             sueltos.append(x)                    # producto de una sola imagen
-    inv[cat] = {'ficha': ficha, 'prods': prods, 'sueltos': sueltos}
+    inv[cat] = {'ficha': ficha_por_top.get(top, 0), 'prods': prods, 'sueltos': sueltos}
 
 # ------------------------------------------------------ datos del index.html
 titulos, categoria, reemplaza, alsoIn, contiene, componentes, imgde = {}, {}, {}, {}, {}, {}, {}
