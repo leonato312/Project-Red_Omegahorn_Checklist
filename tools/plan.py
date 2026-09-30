@@ -31,6 +31,7 @@ CARPETA = {
  'dx-replica-set':          'DX SETS/OMEGAHORN REPLICA ＆ EGOLGEAR SET',
 
  'dx-mecha-enkaku':         'DX MECHAS/DX MEGA FLAME HORN ENKAKU',
+ 'dx-mecha-kienkaku':       'DX MECHAS/DX MEGA MACHINE HORN KIENKAKU',
  'dx-mecha-zankaku':        'DX MECHAS/DX MEGA SLASH HORN ZANKAKU',
  'dx-mecha-goukaku':        'DX MECHAS/DX MEGA BRAVE HORN GOKAKU',
  'dx-mecha-saikaku':        'DX MECHAS/DX MEGA CRUSH HORN SAIKAKU',

@@ -793,6 +793,7 @@ const PIEZAS_CATALOG = [
   { id:"kz-hikaku",       name:"Hikaku",       collection:"kakuzyu", type:"kakuzyu", line:"DX" },
   { id:"kz-goukaku",      name:"Goukaku",      collection:"kakuzyu", type:"kakuzyu", line:"DX" },
   { id:"kz-zetsu-enkaku", name:"Zetsu-Enkaku", collection:"kakuzyu", type:"kakuzyu", line:"DX" },
+  { id:"kz-kienkaku",     name:"Kienkaku",     collection:"kakuzyu", type:"kakuzyu", line:"DX" },
   /* El de Minipla es un model kit de tres cajas, no el DX de 350 mm. */
   { id:"kz-sg-enkaku",    name:"Enkaku",       collection:"kakuzyu", type:"kakuzyu", line:"SG", meaning:"model kit, cajas 1+2+3" },
   /* Gashapon con transformacion y combinacion real -no es figura estatica
@@ -911,6 +912,18 @@ const PRODUCTS = [
              "DX MECHAS/DX MEGA FLAME HORN ENKAKU/03.webp",
              "DX MECHAS/DX MEGA FLAME HORN ENKAKU/04.webp"],
     contains:["kz-enkaku"] },
+  /* Confirmado con foto real de producto en la revista てれびくん 11・12月号
+     (pag. 46, "ナゾの巨大獣"): mecha negro/dorado, se transforma, combina con
+     Enkaku. La historia todavia no revela si es aliado o enemigo -eso no
+     afecta el catalogo, la ficha es la caja, no la trama (Maestro-1 Myth
+     §8.1 aplica igual aqui)-. Precio y fecha por una fuente de reventa
+     (X/@nesuhero0317) mas la revista confirmando que el producto es real. */
+  { id:"dx-mecha-kienkaku", title:"DX MEGA MACHINE HORN KIENKAKU", category:"DX MECHAS",
+    date:"2026-10-24", dateType:"release", price:9000,
+    img:"DX MECHAS/DX MEGA MACHINE HORN KIENKAKU/01-thumb.webp",
+    gallery:["DX MECHAS/DX MEGA MACHINE HORN KIENKAKU/01.webp",
+             "DX MECHAS/DX MEGA MACHINE HORN KIENKAKU/02.webp"],
+    contains:["kz-kienkaku"] },
   { id:"dx-mecha-zankaku", title:"DX MEGA SLASH HORN ZANKAKU", category:"DX MECHAS",
     date:"2026-07-25", dateType:"release", price:4180,
     img:"DX MECHAS/DX MEGA SLASH HORN ZANKAKU/01-thumb.webp",
