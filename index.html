@@ -14,13 +14,14 @@
   sin build, sin dependencias.
 
   DOS PREGUNTAS QUE JUSTIFICAN LA PAGINA
-    1. Cuando llega la proxima wave   -> el mes es la categoria raiz.
+    1. Que hay en cada categoria       -> catalogo agrupado como en Myth:
+       CATEGORIA (PROTAGONISTA/DISPOSITIVO/MECHA/GIMMICK) y dentro, por LINEA.
     2. Que me falta del coleccionable -> checklist derivada, nunca manual.
 
   DONDE SE EDITA (lo unico que hay que tocar para mantenerla)
     · PIEZAS_CATALOG -> las piezas coleccionables de las tres colecciones.
     · PRODUCTS       -> productos: fecha, precio, imagenes y que piezas traen.
-    · MONTHS         -> rotulo visible de cada mes.
+    · TOP_LABEL       -> rotulo visible de cada categoria.
   El resto —grids, contadores, barras, cobertura— se genera solo.
 
   QUE CAMBIA RESPECTO A MYTH
@@ -570,8 +571,8 @@ body::before{
    BLOQUE 1 · CONFIGURACION
    =========================================================================== */
 
-/* Orden fijo de subcategorias dentro de cada mes. Si una no tiene productos
-   ese mes, simplemente no se dibuja. */
+/* Orden fijo de subcategorias (LINEA) dentro de cada categoria. Si una no
+   tiene productos, simplemente no se dibuja. */
 /* Ordenado como Myth: PROTAGONISTA > DISPOSITIVO > MECHA > GIMMICK (sin ARMA,
    aqui no existe). Categoria = "<CATEGORIA>/<LINEA>", igual que las carpetas
    en disco -asi el folder y el dato nunca pueden divergir en silencio-. */
@@ -584,6 +585,18 @@ const CATEGORY_ORDER = [
      pero todos tienen fecha. Una sola imagen, sin subcarpeta. */
   "GIMMICK/PROMOCIONALES"
 ];
+
+/* Catalogo agrupado como en Myth: la categoria raiz (el bloque grande, con su
+   propio acordeon) es la mitad izquierda de cada entrada de CATEGORY_ORDER;
+   la LINEA se dibuja dentro como subseccion. */
+const TOP_ORDER = ["PROTAGONISTA", "DISPOSITIVO", "MECHA", "GIMMICK"];
+const TOP_LABEL = {
+  PROTAGONISTA: "Protagonista",
+  DISPOSITIVO:  "Dispositivos",
+  MECHA:        "Mechas",
+  GIMMICK:      "EgolGear & Gimmicks"
+};
+const topOf = cat => cat.split("/")[0];
 
 /* Distintivo de linea que lleva la tarjeta, tomado de la mitad derecha de la
    categoria (la LINEA). Antes se deducia con `category.startsWith("SG")`,
@@ -611,17 +624,8 @@ const CATEGORY_BADGE = {
    contenido garantizado como una loteria seria mentir en la tarjeta. */
 const RANDOM_BOX_CATEGORIES = ["GIMMICK/SG"];
 
-/* Rotulo visible de cada mes. La clave "AAAA-MM" ordena cronologicamente sola;
-   si falta una, se genera desde la clave (ver monthLabel). */
-const MONTHS = {
-  "2026-07": "Julio 2026",
-  "2026-08": "Agosto 2026",
-  "2026-09": "Septiembre 2026",
-  "2026-10": "Octubre 2026"
-};
-
-const MONTH_NAMES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio",
-                     "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+/* Usado solo por formatDay() para la fecha en cada tarjeta. La pagina ya no
+   agrupa por mes/wave: se agrupa por CATEGORIA, igual que Myth. */
 const MONTH_ABBR  = ["ene","feb","mar","abr","may","jun",
                      "jul","ago","sep","oct","nov","dic"];
 
@@ -1124,10 +1128,6 @@ const PRODUCTS = [
     contains:["oh-gp","kz-gp-enkaku","kz-gp-goukaku","kz-gp-zankaku"] },
 ];
 
-/* El mes del acordeon se deriva de la fecha. `date` es la unica fuente de
-   verdad temporal: guardar mes y fecha por separado los deja desincronizarse. */
-PRODUCTS.forEach(p => { p.month = p.date.slice(0, 7); });
-
 
 /* ===========================================================================
    BLOQUE 4 · ESTADO PERSISTENTE
@@ -1141,7 +1141,7 @@ const STORAGE_KEY = "omegahorn-catalog-v1";   /* propia de la serie: si dos
 
 let state = {
   products: {},                                          // id -> pending|reserved|owned
-  ui: { openMonths: [], hideOwned:false, tab:"egolgear" }
+  ui: { openCats: {}, hideOwned:false, tab:"egolgear" }     // openCats["TOP"] = false lo cierra; por defecto abierto, como Myth
 };
 
 function loadState(){
@@ -1295,13 +1295,7 @@ const esc = str => String(str).replace(/[&<>"']/g,
 const formatPrice = v => (v === null || v === undefined)
   ? null : CURRENCY.symbol + v.toLocaleString(CURRENCY.locale);
 
-function monthLabel(key){
-  if(MONTHS[key]) return MONTHS[key];
-  const [y, m] = key.split("-");
-  return MONTH_NAMES[Number(m) - 1] + " " + y;
-}
-
-/* "2026-09-05" -> "5 sep". El ano se sobreentiende por el acordeon. */
+/* "2026-09-05" -> "5 sep". El ano se sobreentiende por la tarjeta. */
 function formatDay(date){
   const [, m, d] = date.split("-");
   return Number(d) + " " + MONTH_ABBR[Number(m) - 1];
@@ -1311,107 +1305,64 @@ function today(){ const t = new Date(); t.setHours(0,0,0,0); return t; }
 function parseDate(s){ const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d); }
 const daysUntil = s => Math.round((parseDate(s) - today()) / 86400000);
 
-const sortedMonthKeys = () => [...new Set(PRODUCTS.map(p => p.month))].sort();
-
-/* Proxima wave = el primer mes que aun tiene algun lanzamiento por venir.
-   Los productos con `dateExact:false` no cuentan: su dia es un marcador para
-   colocarlos en el mes, no una fecha, y no puede mandar en la cuenta atras. */
-function nextWaveKey(){
-  return PRODUCTS.filter(p => p.dateExact !== false && daysUntil(p.date) >= 0)
-                 .map(p => p.month).sort()[0] || null;
-}
-
 /* Un producto cuyo dia no se ha anunciado. */
 const sinDia = p => p.dateExact === false;
-
-/* Dias de salida confirmados del mes. Los `dateExact:false` se excluyen:
-   anunciar "2 tandas: dias 1 y 5" cuando el 1 nos lo hemos inventado seria
-   peor que no decir nada. */
-const dropDates = key =>
-  [...new Set(PRODUCTS.filter(p => p.month === key && !sinDia(p)).map(p => p.date))].sort();
-
-/* Cuantos productos del mes estan pendientes de que Bandai anuncie el dia. */
-const sinDiaEnMes = key => PRODUCTS.filter(p => p.month === key && sinDia(p)).length;
 
 
 /* ===========================================================================
    BLOQUE 7 · RENDER — CATALOGO
-   =========================================================================== */
+   Agrupado como en Myth: CATEGORIA raiz (acordeon) > LINEA (subseccion) >
+   tarjetas, en vez de por mes/wave. */
 const catalogEl = document.getElementById("catalog");
 
+/* Productos que le tocan a una categoria raiz: los que viven ahi, mas los
+   cruzados (`alsoIn`) que tambien caen en esa raiz. */
+function productosDe(top){
+  return PRODUCTS.filter(p => categoriesOf(p).some(c => topOf(c) === top));
+}
+
 function renderCatalog(){
-  const nextKey = nextWaveKey();
-  catalogEl.innerHTML = sortedMonthKeys().map(k => monthHTML(k, k === nextKey)).join("");
+  catalogEl.innerHTML = TOP_ORDER
+    .map(top => { const productos = productosDe(top); return productos.length ? catHTML(top, productos) : ""; })
+    .join("");
   bindCatalogEvents();
 }
 
-function monthHTML(key, isNext){
-  const products = PRODUCTS.filter(p => p.month === key);
+function catHTML(top, products){
   const cub      = coveredMap();
   const ownedN   = products.filter(p => isResolved(p, cub)).length;
-  const isOpen   = state.ui.openMonths.includes(key);
+  const isOpen   = state.ui.openCats[top] !== false;      // por defecto abierta, como Myth
   const complete = ownedN === products.length && products.length > 0;
 
-  const drops    = dropDates(key);
-  const dropsTxt = drops.map(d => Number(d.split("-")[2])).join(" · ");
-  const pendN    = sinDiaEnMes(key);
-  /* Un mes solo se da por pasado si todo lo que tiene fecha ya salio y no
-     queda nada pendiente de anunciar. */
-  const past     = drops.length > 0 && daysUntil(drops[drops.length - 1]) < 0 && !pendN;
-
-  let rotulo;
-  if(!drops.length)        rotulo = "Dia por anunciar";
-  else if(drops.length > 1) rotulo = drops.length + " tandas: dias " + dropsTxt;
-  else                      rotulo = "Dia " + dropsTxt;
-  if(drops.length && pendN) rotulo += " · " + pendN + " sin fecha";
-
-  /* Cuenta atras solo en la proxima wave: es el dato que se viene a buscar.
-     Ojo con el vocabulario, que aqui significan cosas distintas: una WAVE es el
-     ciclo de lanzamientos de un mes, y las TANDAS son los dias concretos de
-     salida dentro de ese mes. Septiembre es una wave con dos tandas. */
-  let countdown = "";
-  if(isNext){
-    const next = drops.find(d => daysUntil(d) >= 0);
-    if(next !== undefined){
-      const n   = daysUntil(next);
-      const txt = n === 0 ? "Sale hoy" : n === 1 ? "Manana" : "En " + n + " dias";
-      countdown = `<span class="chip chip--next">Proxima wave · ${esc(txt)}</span>`;
-    }
-  }
-
-  const body = CATEGORY_ORDER.map(cat => {
+  const body = CATEGORY_ORDER.filter(cat => topOf(cat) === top).map(cat => {
     const items = products.filter(p => categoriesOf(p).includes(cat));
     return items.length ? subcatHTML(cat, items) : "";
   }).join("");
 
   return `
-  <section class="month${isNext ? " month--next" : ""}${past ? " month--past" : ""}"
-           data-month="${esc(key)}" data-open="${isOpen}">
-    <button class="month__head" aria-expanded="${isOpen}" aria-controls="body-${esc(key)}">
+  <section class="month" data-cat="${esc(top)}" data-open="${isOpen}">
+    <button class="month__head" aria-expanded="${isOpen}" aria-controls="body-${esc(top)}">
       <svg class="month__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor"
            stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <polyline points="9 18 15 12 9 6"/>
       </svg>
-      <span class="month__title">${esc(monthLabel(key))}</span>
-      <span class="month__drops" title="Fechas de salida de este mes">${esc(rotulo)}</span>
+      <span class="month__title">${esc(TOP_LABEL[top] || top)}</span>
       <span class="month__meta">
-        ${countdown}
         ${complete ? '<span class="chip chip--done">Completo</span>' : ""}
         <span class="chip chip--count">${ownedN}/${products.length} productos</span>
       </span>
     </button>
-    <div class="month__body" id="body-${esc(key)}">
+    <div class="month__body" id="body-${esc(top)}">
       <div class="month__inner">${body}</div>
     </div>
   </section>`;
 }
 
 function subcatHTML(category, items){
-  /* Dentro de una subcategoria mandan las fechas: primero lo que sale antes. */
-  /* Mandan las fechas: primero lo que sale antes. Lo que aun no tiene dia
-     anunciado se va al final, que es donde estorba menos. */
+  /* Dentro de una linea manda la fecha, de mas nueva a mas vieja, igual que
+     Myth. Lo que aun no tiene dia anunciado se va al final. */
   const sorted = [...items].sort((a,b) =>
-    (sinDia(a) - sinDia(b)) || a.date.localeCompare(b.date));
+    (sinDia(a) - sinDia(b)) || b.date.localeCompare(a.date));
   return `
   <section class="subcat">
     <header class="subcat__head">
@@ -1746,17 +1697,15 @@ function productoItemHTML(p, cub){
    =========================================================================== */
 function bindCatalogEvents(){
 
-  /* Abrir y cerrar mes */
+  /* Abrir y cerrar categoria */
   catalogEl.querySelectorAll(".month__head").forEach(head => {
     head.addEventListener("click", () => {
       const section = head.closest(".month");
-      const key  = section.dataset.month;
+      const top  = section.dataset.cat;
       const open = section.dataset.open !== "true";
       section.dataset.open = open;
       head.setAttribute("aria-expanded", open);
-      state.ui.openMonths = open
-        ? [...new Set([...state.ui.openMonths, key])]
-        : state.ui.openMonths.filter(k => k !== key);
+      state.ui.openCats[top] = open;
       saveState();
     });
   });
@@ -1787,7 +1736,7 @@ function bindCatalogEvents(){
       updateCardUI(id);
       refreshCoverage();
       renderChecklist();
-      updateMonthCounters();
+      updateCatCounters();
     });
   });
 }
@@ -1838,12 +1787,12 @@ function refreshCoverage(){
   });
 }
 
-function updateMonthCounters(){
+function updateCatCounters(){
   const cub = coveredMap();
-  sortedMonthKeys().forEach(key => {
-    const section = catalogEl.querySelector(`.month[data-month="${key}"]`);
+  TOP_ORDER.forEach(top => {
+    const section = catalogEl.querySelector(`.month[data-cat="${top}"]`);
     if(!section) return;
-    const items = PRODUCTS.filter(p => p.month === key);
+    const items = productosDe(top);
     const got   = items.filter(p => isResolved(p, cub)).length;
 
     const chip = section.querySelector(".chip--count");
@@ -1887,15 +1836,16 @@ function bindChecklistEvents(){
   });
 }
 
-/* Abre el mes que toque, cierra el panel y resalta la tarjeta. */
+/* Abre la categoria que toque, cierra el panel y resalta la tarjeta. */
 function goToProduct(productId){
   const prod = PRODUCTS.find(p => p.id === productId);
   if(!prod) return;
 
-  if(!state.ui.openMonths.includes(prod.month)){
-    state.ui.openMonths.push(prod.month);
+  const top = topOf(prod.category);
+  if(state.ui.openCats[top] === false){
+    state.ui.openCats[top] = true;
     saveState();
-    const section = catalogEl.querySelector(`.month[data-month="${prod.month}"]`);
+    const section = catalogEl.querySelector(`.month[data-cat="${top}"]`);
     if(section){
       section.dataset.open = "true";
       section.querySelector(".month__head").setAttribute("aria-expanded", "true");
@@ -1982,12 +1932,6 @@ hideOwnedEl.addEventListener("change", () => {
    =========================================================================== */
 function init(){
   loadState();
-
-  /* Primera visita: se deja abierta la proxima tanda, para que se vea algo. */
-  if(!state.ui.openMonths.length){
-    const next = nextWaveKey() || sortedMonthKeys()[0];
-    if(next) state.ui.openMonths = [next];
-  }
   hideOwnedEl.checked = !!state.ui.hideOwned;
 
   renderCatalog();
